@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#173e3c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="TorgAI">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="./icons/icon-192.png">
+  <script src="./pwa.js" defer></script>
+  <title>TorgAI — Қала сенен басталады</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+  <style>
+    :root{--green:#173e32;--lime:#d7fa77;--muted:#758078}*{box-sizing:border-box}body{margin:0;background:#eef1e9;color:#193c30;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #699e30;outline-offset:4px}button{-webkit-tap-highlight-color:transparent}svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.shell{max-width:480px;min-height:100dvh;background:#fafbf6;margin:auto;position:relative;box-shadow:0 0 80px #173e3210}main{padding:0 22px 120px}.page[hidden]{display:none}.page{animation:appear .25s ease}@keyframes appear{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}.hero{background:#173e32;border-radius:26px;color:white;position:relative;overflow:hidden}.orb{position:absolute;width:190px;height:190px;border:1px solid #ffffff18;border-radius:50%;right:-64px;top:-36px;box-shadow:0 0 0 26px #ffffff06,0 0 0 53px #ffffff05}.card{border:1px solid #e6eadf;border-radius:22px;background:#fff}.muted{color:var(--muted)}.pill{padding:9px 15px;border-radius:30px;font-size:12px;font-weight:650;white-space:nowrap;background:#edf0e7;color:#657166}.pill.active{background:var(--green);color:white}.quest-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:17px;flex-shrink:0;font-size:26px}.action{background:var(--lime);border:0;border-radius:12px;padding:11px 15px;color:#214527;font-weight:750;font-size:12px}.action:disabled{background:#edf2e7;color:#6e7d68;cursor:default}.nav{position:fixed;bottom:0;width:min(100%,480px);background:#fffffff5;backdrop-filter:blur(16px);border-top:1px solid #e5e9df;display:grid;grid-template-columns:repeat(5,1fr);padding:11px 10px calc(12px + env(safe-area-inset-bottom));z-index:20}.nav button{border:0;background:none;color:#8b9389;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;font-weight:650}.nav button span:first-child{padding:6px 17px;border-radius:15px}.nav button[aria-selected=true]{color:#214730}.nav button[aria-selected=true] span:first-child{background:#d7fa77}.map{position:relative;overflow:hidden;background:#e9eedc;height:360px;border-radius:24px}.map svg{width:100%;height:100%;stroke:none}.pin{position:absolute;border:3px solid white;border-radius:50%;width:43px;height:43px;background:#173e32;color:white;box-shadow:0 4px 12px #173e3233}.pin.selected{background:#d7fa77;color:#173e32;transform:scale(1.12)}#toast{position:fixed;bottom:105px;left:50%;transform:translateX(-50%);background:#173e32;color:white;border-radius:15px;padding:14px 20px;max-width:90%;width:max-content;z-index:30;font-size:13px;box-shadow:0 5px 25px #0002}#toast:empty{display:none}@media(min-width:640px){.shell{margin-top:24px;border-radius:32px 32px 0 0}}@media(prefers-reduced-motion:reduce){.page{animation:none}}
+    .event-banner{padding:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(120deg,#173e32,#35654a);color:#d7fa77}.event-status{font-size:10px;font-weight:750;border-radius:30px;padding:7px 10px;background:#ffffffdf;color:#254b37}.event-date{font-size:12px;line-height:1.8;color:#657166}.event-dialog{border:0;border-radius:26px;padding:26px;width:calc(100% - 32px);max-width:430px;max-height:85dvh;overflow:auto;color:#193c30;background:#fafbf6}.event-dialog::backdrop{background:#102b24aa;backdrop-filter:blur(5px)}
+    #real-map{height:420px;min-height:320px;border-radius:24px;z-index:0;background:#e9eedc}#real-map img{max-width:none}.leaflet-control-attribution{font-size:9px}.leaflet-popup-content{font-family:inherit}
+    #confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:26px}.confetti-piece{position:absolute;top:-15px;width:9px;height:14px;animation:confetti-fall 1.8s ease-in forwards}@keyframes confetti-fall{to{transform:translate(var(--drift),650px) rotate(650deg);opacity:0}}@media(prefers-reduced-motion:reduce){.confetti-piece{animation:none;display:none}}
+    main{padding-bottom:calc(120px + env(safe-area-inset-bottom))}.card,.hero{overflow-wrap:anywhere}.card .flex>div{min-width:0}.action,.pill{min-height:44px}input{font-size:16px}#real-map{height:clamp(300px,52dvh,440px);overflow:hidden}#real-map svg{width:auto;height:auto}.map-pin{width:34px;height:34px;border:3px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#173e32;box-shadow:0 3px 10px #0003}.map-pin.event-pin{background:#796395}.map-pin span{display:block;transform:rotate(45deg);text-align:center;color:white;line-height:28px;font-size:16px}.leaflet-popup-content{max-width:220px;overflow-wrap:anywhere}.leaflet-popup-content button{margin-top:8px;width:100%}@media(max-width:360px){main{padding-left:14px;padding-right:14px}header{padding-left:14px!important;padding-right:14px!important}header>a{gap:6px!important}header>a>span:last-child{font-size:16px}header>span{padding:6px!important}.event-dialog{padding:20px}.nav button span:first-child{padding:6px 14px}}
+    .featured-event{border:2px solid #dd7250;box-shadow:0 6px 24px #ad392018}.featured-event .event-status{background:#fff0df;color:#a53122}.featured-event .action{background:#a83426;color:white}.map-pin.hackathon-pin{background:#d13a30;box-shadow:0 0 0 5px #d13a3020,0 3px 12px #0003}
+    .nav button span:first-child{padding:6px 10px}.nav button{min-width:0}.rank-row{display:flex;align-items:center;gap:12px;padding:16px;margin-bottom:10px;animation:appear .35s ease both}.rank-row:first-child{background:linear-gradient(110deg,#fff8d7,#fff);border-color:#e5c75e}.rank-pos{font-size:21px;width:34px;text-align:center;flex-shrink:0}.rank-name{flex:1;min-width:0}.rank-points{font-weight:800;color:#366140;white-space:nowrap}#ar-dialog{position:fixed;inset:0;width:100vw;max-width:none;height:100dvh;max-height:none;border:0;margin:0;padding:0;background:#12251e;color:white;overflow:hidden}#ar-dialog::backdrop{background:#12251e} .ar-top{display:flex;justify-content:space-between;gap:12px;padding:calc(18px + env(safe-area-inset-top)) 20px 12px}.ar-top h2{font-weight:800;font-size:20px}#ar-dialog{overflow-y:auto}#ar-viewer-host{height:clamp(240px,54dvh,560px);background:radial-gradient(ellipse at center,#537a61,#12251e)}#ar-viewer-host model-viewer{width:100%;height:100%;touch-action:pan-y}.ar-bottom{max-width:520px;margin:auto;padding:16px 22px calc(24px + env(safe-area-inset-bottom))}#ar-confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden}.model-ar-button{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);white-space:nowrap}.rank-row{animation:appear .35s ease both}@media(prefers-reduced-motion:reduce){.rank-row{animation:none}}
+
+
+    #report-open{position:fixed;right:max(16px,calc((100vw - 480px)/2 + 16px));bottom:calc(98px + env(safe-area-inset-bottom));width:54px;height:54px;border:3px solid white;border-radius:50%;background:#d13a30;box-shadow:0 5px 20px #9d201044;font-size:25px;z-index:25}.sponsored-card{border:1px solid #c3a5f0;background:linear-gradient(135deg,#f5edff,#fff);box-shadow:0 4px 15px #8550b512}.sponsor-badge{display:inline-block;padding:6px 10px;background:#eadbff;color:#673891;border-radius:30px;font-size:11px;font-weight:750}textarea{font:inherit;font-size:16px}main{padding-bottom:calc(175px + env(safe-area-inset-bottom))}
+    .dispatch-check{width:76px;height:76px;border-radius:50%;background:#d7fa77;color:#173e32;display:grid;place-items:center;font-size:42px;margin:8px auto;animation:dispatch-pop .55s cubic-bezier(.2,1.5,.5,1) both}.dispatch-level{padding:10px 14px;border-radius:12px;font-size:12px;font-weight:750;margin-top:16px}.dispatch-level.red{background:#fee2e2;color:#991b1b}.dispatch-level.yellow{background:#fef3c7;color:#854d0e}.dispatch-level.blue{background:#dbeafe;color:#1e40af}.dispatch-level.green{background:#dcfce7;color:#166534}@keyframes dispatch-pop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}@media(prefers-reduced-motion:reduce){.dispatch-check{animation:none}}
+    #guide-open{position:fixed;bottom:calc(102px + env(safe-area-inset-bottom));left:max(16px,calc((100vw - 480px)/2 + 22px));z-index:24;box-shadow:0 5px 20px #173e3233;max-width:calc(100vw - 110px)}.tour-art{height:140px;position:relative;display:grid;place-items:center;background:linear-gradient(135deg,var(--tour-color),#f6f3dc);overflow:hidden}.tour-art::before{content:'';width:220px;height:220px;border:24px solid #ffffff40;position:absolute;border-radius:50%;right:-60px;top:-70px}.tour-art span{font-size:64px;position:relative}.tour-art small{position:absolute;bottom:10px;left:14px;font-size:10px;color:#173e32}.guide-reply{padding:12px;background:#eaf1df;border-radius:14px;font-size:13px;line-height:1.6}.guide-user{padding:12px;background:#173e32;color:white;border-radius:14px;font-size:13px;overflow-wrap:anywhere}#guide-chat{max-height:45dvh;overflow-y:auto}
+  </style>
+  <style>
+#ar-stage{position:relative;overflow:hidden}
+#ar-viewer-host{transition:filter .3s}
+#ar-stage.is-catching model-viewer{animation:robot-caught 1.75s ease-in forwards;pointer-events:none}
+.capture-capsule{position:absolute;left:calc(50% - 30px);bottom:15px;width:60px;height:60px;border:3px solid white;border-radius:50%;background:linear-gradient(#d7fa77 0 45%,#173e32 45% 55%,#fff 55%);box-shadow:0 0 24px #d7fa7766;pointer-events:none;opacity:0}
+.capture-capsule::after{content:'';position:absolute;width:20px;height:20px;left:17px;top:17px;background:white;border:5px solid #173e32;border-radius:50%}
+.is-catching .capture-capsule{animation:capsule-throw 1.75s ease-in-out forwards}
+.is-caught .capture-capsule{opacity:1;bottom:50%;transform:translateY(50%) scale(1.1);animation:none;box-shadow:0 0 0 12px #d7fa771a,0 0 60px #d7fa77}
+#ar-stage.is-caught #ar-viewer-host{height:clamp(140px,24dvh,200px)}
+#ar-stage.is-caught+.ar-bottom #ar-help{display:none}
+#capture-result{padding:18px;border:1px solid #d7fa77;border-radius:20px;background:#234334;margin:16px 0;text-align:center}
+#capture-result[hidden],#capture-collection[hidden],#ar-reward[hidden]{display:none}
+.robot-collection-card{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;padding:16px;border:1px solid #d4e5aa;border-radius:20px;background:linear-gradient(135deg,#edf7d8,#fff);margin-top:12px}
+.robot-avatar{display:grid;place-items:center;width:48px;height:54px;border-radius:16px;background:#d7fa77;font-size:32px}
+#collection-heading{scroll-margin-top:20px}
+@keyframes robot-caught{0%,30%{transform:scale(1);opacity:1}65%,100%{transform:translateY(50px) scale(.03);opacity:0}}
+@keyframes capsule-throw{0%{opacity:1;transform:translateY(120px) scale(1.2) rotate(-25deg)}45%{opacity:1;transform:translateY(-160px) scale(.65) rotate(360deg)}65%{transform:translateY(-110px) scale(1) rotate(360deg)}75%{transform:translateY(-110px) rotate(345deg)}85%{transform:translateY(-110px) rotate(375deg)}100%{opacity:1;transform:translateY(-110px) scale(1.1) rotate(360deg)}}
+@media(max-width:360px){.robot-collection-card{gap:8px;padding:12px}.robot-collection-card .action{padding:10px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){#ar-stage.is-catching model-viewer,.is-catching .capture-capsule{animation:none}#ar-stage.is-caught model-viewer{opacity:0}}
+
+</style>
+<style>
+#welcome-dialog{padding:30px 24px;border:1px solid #d7fa77;box-shadow:0 24px 100px #071d2260;background:linear-gradient(150deg,#173e32,#122b25);color:white}
+#welcome-dialog::backdrop{background:#102b24ed;backdrop-filter:blur(12px)}
+#welcome-dialog input{color:#173e32;background:#fafbf6;border:2px solid transparent}
+#welcome-dialog input:focus{outline:2px solid #d7fa77;outline-offset:3px}
+.welcome-orb{display:grid;place-items:center;width:80px;height:80px;margin:0 auto 24px;border-radius:26px;background:#d7fa77;font-size:42px;transform:rotate(-6deg)}
+.rank-row.rank-current{border:2px solid #7fa23c;box-shadow:0 4px 18px #173e3210}
+.rank-row .rank-name{overflow-wrap:anywhere}.rank-current .rank-you{font-size:10px;background:#d7fa77;padding:3px 7px;border-radius:20px;margin-left:6px;color:#173e32}
+@media(max-width:360px){.rank-row{gap:8px;padding:12px}.rank-points{font-size:14px}}
+</style><style>.match-label{display:block;font-size:13px;font-weight:650}.match-label input,.match-label select,.match-label textarea{display:block;width:100%;min-width:0;max-width:100%;border:1px solid #dce4d5;border-radius:12px;padding:12px;margin-top:7px;font:inherit;font-size:16px;background:white;color:#173e32;box-sizing:border-box}.match-verified{display:inline-block;background:#e4f5e8;color:#27613b;font-size:10px;font-weight:750;padding:6px 8px;border-radius:10px}.match-scanner{position:relative;overflow:hidden;display:grid;place-items:center;margin:auto;width:110px;height:110px;background:#eaf4df;border:1px solid #d0e7b3;border-radius:28px;font-size:50px}.match-scanner span{position:absolute;inset:0;background:linear-gradient(transparent,#b9ee8b88,transparent);height:45%;animation:match-scan 1.1s ease-in-out infinite}.match-track{height:8px;background:#e6eadf;border-radius:10px;overflow:hidden}#match-progress{height:100%;width:0;background:#7cb84f;transition:width .5s ease}.match-description{white-space:pre-wrap;overflow-wrap:anywhere}@keyframes match-scan{from{transform:translateY(-100%)}to{transform:translateY(230%)}}@media(prefers-reduced-motion:reduce){.match-scanner span{animation:none}#match-progress{transition:none}}
+</style><style>.eco-event{border:2px solid #459368;box-shadow:0 6px 22px #28794c18}.eco-event .event-status{background:#dcfce7;color:#166534}.eco-event .text-\[\#aa3425\]{color:#28794c}.cleanup-pin{background:#279758!important;box-shadow:0 0 0 6px #27975822,0 3px 10px #0003}.cleanup-bonus{padding:12px;border-radius:12px;background:#edf7df;font-size:12px;font-weight:700;margin-top:14px}</style><style>.safe-map-wrap{position:relative}.safe-toggle{position:absolute;right:10px;top:10px;z-index:500;border:1px solid #9bb8a7;border-radius:15px;background:#fff;color:#173e32;padding:10px;min-height:44px;box-shadow:0 3px 12px #0002;font-size:12px;font-weight:750}.safe-toggle[aria-checked=true]{background:#112c29;color:#9bfab8;border-color:#63cd91}.safe-toggle::after{content:' ○';font-size:18px}.safe-toggle[aria-checked=true]::after{content:' ●'}.night-map .leaflet-tile-pane{filter:brightness(.48) saturate(.6)}.night-map{background:#152f36!important}.safe-grid{background:repeating-linear-gradient(45deg,#ef444430 0 2px,transparent 2px 12px),repeating-linear-gradient(-45deg,#ef444430 0 2px,transparent 2px 12px);width:100%;height:100%;border:2px dashed #ef4444;border-radius:12px}.safe-grid-label{background:#fff1f2;color:#9f1239;padding:5px;font-size:10px;font-weight:bold;display:inline-block;white-space:nowrap}#safe-sos{position:fixed;right:max(19px,calc((100vw - 480px)/2 + 19px));bottom:calc(163px + env(safe-area-inset-bottom));width:48px;height:48px;border:3px solid white;border-radius:50%;background:#a81928;color:white;font-weight:850;font-size:12px;box-shadow:0 4px 18px #8f152644;z-index:25}.sos-call{display:flex;align-items:center;justify-content:center;flex:1;background:#b42332;color:white;text-decoration:none;border-radius:13px;padding:13px 8px;font-weight:bold;font-size:13px;min-height:48px}#sos-place a{display:block;white-space:normal;text-align:center;text-decoration:none}#safe-continue[hidden]{display:none}#sos-gps{overflow-wrap:anywhere}
+</style><style>:root{--green:#173e3c;--lime:#cdec9c;--muted:#718584}body{background:#f0f5f6;color:#193d3d}.shell{max-width:1320px;background:#f8fbfb;box-shadow:0 10px 60px #254b4610;margin:0 auto!important;border-radius:0!important}.dashboard-header{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px;padding:24px 30px!important;border-bottom:1px solid #dde9e7;background:white}.dashboard-brand{display:flex;align-items:center;gap:16px}.dashboard-brand>a>span:last-child>span:last-child{display:none}.dashboard-brand>span{font-size:10px}.dashboard-account{display:flex;gap:9px;align-items:center;text-align:left;background:#f0f6f4;border:1px solid #dce8e1;border-radius:16px;padding:10px 14px;min-width:0;max-width:220px}.dashboard-account strong{display:block;max-width:135px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.dashboard-account small{display:block;font-size:10px;color:#648178;margin-top:3px}.account-avatar{background:#d7efc2;border-radius:50%;width:30px;height:30px;display:grid;place-items:center}.dashboard-nav{position:static;width:auto;background:none;backdrop-filter:none;border:0;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0}.dashboard-nav button{padding:11px 8px;flex-direction:row;gap:7px;justify-content:center;border-radius:12px;font-size:11px;line-height:1.35;min-height:48px}.dashboard-nav button span:first-child{padding:0!important;border-radius:0!important;background:none!important;font-size:19px}.dashboard-nav button[aria-selected=true]{background:#e6f1df;color:#245330}.dashboard-slogan{padding:24px 30px 12px}.dashboard-live{font-size:10px;letter-spacing:.13em;color:#56816e;font-weight:750}.dashboard-slogan h1{font-size:clamp(17px,2vw,24px);font-weight:750;margin-top:8px;letter-spacing:-.025em}main{padding:20px 30px 100px!important}.dashboard-module[hidden]{display:none!important}.dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}.activity-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,1fr);gap:28px}.dashboard-module .page{min-width:0;animation:none}.dashboard-module h1{font-size:24px!important}.card{border:1px solid #dde8e5;border-radius:18px;box-shadow:0 4px 15px #22473c05}.hero{border-radius:18px;background:#204c48}.action{border-radius:10px}.dashboard-coupon{padding:22px;margin-top:20px;background:linear-gradient(135deg,#f4f9eb,#e9f4f3)}.dashboard-details{border:1px solid #dce8e4;border-radius:14px;background:white;margin:12px 0;overflow:hidden}.dashboard-details>summary{cursor:pointer;padding:14px;font-size:12px;font-weight:700}.dashboard-details>article,.dashboard-details>section,.dashboard-details>.hero{margin:0!important;border:0!important;border-radius:0!important}.map-filter-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}#real-map{height:clamp(420px,65vh,720px)}#map>h1{margin-bottom:0}.safe-toggle{max-width:calc(100% - 70px)}.assistant-heading{margin-bottom:22px}.assistant-heading h2{font-size:28px;font-weight:800;margin:8px 0}.assistant-layout{display:grid;grid-template-columns:1.5fr 1fr;gap:24px}.assistant-panel,.assistant-info{padding:24px;min-width:0}.assistant-info{align-self:start;background:#edf6f1}.assistant-tabs{display:flex;gap:8px}.assistant-info #tourism h1{font-size:20px!important}#tourism{margin-top:18px}#guide-chat{max-height:360px;min-height:140px}#safe-sos{right:20px;bottom:24px}#report-open[hidden]{display:none}#profile-dialog{max-width:560px}#profile-dialog #profile h1{font-size:24px!important}#match .hero{padding:20px}#match .hero h1{font-size:24px!important}.dashboard-module #quest-list{display:grid;gap:12px}.dashboard-module #quest-list>*{margin:0!important}.dashboard-module #quest-list .quest-icon{width:42px;height:42px;font-size:22px}#events .event-banner{padding:12px 18px}#events .event-banner>span:first-child{font-size:28px}.dashboard-module .rank-row{padding:12px}.dashboard-module #leaderboard>p{font-size:11px}#map #place-detail{max-width:none}#match-open[hidden]{display:none}
+@media(max-width:1100px){.dashboard-header{gap:14px;padding:18px 22px!important}.dashboard-brand>span{display:none}.dashboard-nav button{font-size:10px;gap:5px}.dashboard-account{padding:9px}.account-avatar{display:none}.dashboard-account strong{max-width:100px}}
+@media(max-width:760px){.dashboard-header{grid-template-columns:1fr auto;padding:16px!important;gap:14px}.dashboard-brand>span{display:flex}.dashboard-nav{grid-column:1/-1;grid-row:2;gap:5px}.dashboard-nav button{flex-direction:column;gap:5px;font-size:10px;padding:9px 4px}.dashboard-slogan{padding:18px 16px 0}.dashboard-slogan h1{font-size:18px;line-height:1.45}main{padding:18px 16px 90px!important}.dashboard-grid,.activity-grid,.assistant-layout{grid-template-columns:1fr;gap:24px}.assistant-panel,.assistant-info{padding:18px}#real-map{height:57dvh;min-height:360px}.dashboard-module h1{font-size:23px!important}.dashboard-brand>a{gap:8px}.dashboard-brand{gap:8px}.dashboard-account{max-width:145px}#safe-sos{right:16px;bottom:20px}#guide-open{max-width:100%}.event-dialog{max-height:88dvh}.dashboard-module #quests>.flex>span{display:none}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style><style>.assistant-tabs{flex-wrap:wrap}.assistant-layout>*{min-width:0}.dashboard-module .rank-row{animation:none}.assistant-tabs .pill{white-space:normal}.dashboard-module input,.dashboard-module textarea{min-width:0;max-width:100%}</style><style>.insights-widget{padding:20px;border:1px solid #bcdad3;border-radius:22px;background:linear-gradient(135deg,#edf8f3,#edf3ff);margin-bottom:20px;box-shadow:0 8px 24px #2565560b}.insights-eyebrow{display:flex;justify-content:space-between;gap:10px;font-size:9px;font-weight:800;letter-spacing:.15em;color:#477866}.insights-eyebrow span{color:#286c52}.insights-widget h2{font-size:18px;font-weight:800;line-height:1.45;margin-top:12px}.insights-note{font-size:11px;color:#657f78;margin-top:8px}.insights-card{background:#ffffffc9;border:1px solid #d9e7e2;border-left:4px solid #61aa7e;border-radius:14px;padding:16px;margin-top:16px;min-height:175px;transition:opacity .25s}.insights-card[data-tone=safety]{border-left-color:#dea64a}.insights-card[data-tone=trend]{border-left-color:#6a91d6}.insights-card[aria-busy=true]{opacity:.4}#insights-category{font-size:12px;font-weight:800}#insights-text{font-size:14px;line-height:1.65;margin-top:10px;overflow-wrap:anywhere}#insights-basis{font-size:10px;line-height:1.5;color:#74847f;margin-top:12px}#insights-loading{font-size:11px;color:#466d62;margin-top:10px}#insights-loading[hidden]{display:none}.insights-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#4a9b75;animation:insight-pulse .7s ease-in-out infinite alternate}.insights-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}.insights-controls>span{font-size:11px;color:#6c817c;margin-right:auto}.insights-controls button{border:1px solid #cadfd6;border-radius:10px;background:#fff9;padding:10px;font-size:11px;font-weight:700;min-height:44px}.insights-controls button:disabled{opacity:.5}@keyframes insight-pulse{to{opacity:.2;transform:scale(.65)}}@media(prefers-reduced-motion:reduce){.insights-dot{animation:none}.insights-card{transition:none}}@media(max-width:360px){.insights-widget{padding:14px}.insights-widget h2{font-size:16px}.insights-card{padding:12px}}
+</style></head>
+<body>
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m16 8-3 5-5 3 3-5Z"/></symbol>
+<symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z M9 3v15 M15 6v15"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18m-13 5h2m4 0h2"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></symbol>
+</defs></svg>
+<div class="shell">
+  <header class="px-[22px] pt-7 pb-7 flex justify-between items-center">
+    <a href="#quests" class="flex items-center gap-2.5 no-underline text-inherit" aria-label="TorgAI басты бет"><span class="w-10 h-10 rounded-2xl bg-[#173e32] text-[#d7fa77] grid place-items-center"><svg><use href="#i-compass"/></svg></span><span class="font-extrabold text-lg tracking-tight">Torg<span class="text-[#54822d]">AI</span><span class="block text-[9px] tracking-[.23em] uppercase muted mt-0.5">Қала сенен басталады</span></span></a>
+    <span class="text-[11px] font-semibold rounded-full border border-[#e0e6d8] px-3 py-2 flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-[#72a94d] rounded-full"></span>Арқалық</span>
+  </header><div class="px-[22px] mb-5"><button id="tourism-open" class="action w-full" aria-controls="tourism">🎒 Туризм · Арқалықты ашыңыз →</button><button id="match-open" class="action w-full mt-2" aria-controls="match" style="background:#173e32;color:#d7fa77">✦ TorgAI Match · Өз командаңды тап</button></div>
+  <main>
+    <section id="quests" class="page" role="tabpanel" aria-labelledby="tab-quests">
+      <div class="flex justify-between items-end mb-5"><div><p class="text-sm muted mb-1">Сәлем, қала зерттеушісі! 👋</p><h1 class="text-[28px] leading-tight font-extrabold tracking-tight">Бүгінгі миссияң</h1></div><span class="text-2xl mb-1">✦</span></div>
+      <div class="hero p-6 mb-6"><div class="orb"></div><div class="relative"><span class="text-[10px] font-semibold tracking-[.14em] text-[#d7fa77] uppercase">Торғай өңірінің цифрлық тынысы</span><h2 class="text-[27px] font-bold leading-[1.22] mt-3 mb-3">Қаланы таны.<br>Жақсылық жаса.<br><span class="text-[#d7fa77]">Ұпай жина.</span></h2><p class="text-xs text-[#b9cbbf] max-w-[240px] leading-5">Арқалық пен Торғай өңіріне арналған AI-экожүйе. Қаланы зертте, робот жина, өңірдің дамуына үлес қос.</p><div class="flex items-center gap-3 mt-5 pt-4 border-t border-white/15"><span class="bg-white/10 rounded-xl p-2 text-xl">⚡</span><div class="flex-1"><div class="flex justify-between text-[11px] mb-2"><span>Келесі деңгейге</span><span><b class="xp">120</b> / 500 XP</span></div><div class="h-1.5 bg-white/15 rounded-full overflow-hidden"><div class="xpbar h-full bg-[#d7fa77] rounded-full" style="width:24%"></div></div></div></div></div></div>
+      <div class="flex items-center justify-between mb-4"><h2 class="text-lg font-bold">Қала квесттері</h2><span id="quest-count" class="text-xs muted">3 квест</span></div>
+      <div id="filters" class="flex gap-2 overflow-x-auto pb-4" aria-label="Квест санаттары"><button class="pill active" data-filter="all" aria-pressed="true">Барлығы</button><button class="pill" data-filter="eco" aria-pressed="false">🌳 Серуен</button><button class="pill" data-filter="culture" aria-pressed="false">🧭 Таным</button><button class="pill" data-filter="social" aria-pressed="false">🔥 Жастар</button></div>
+      <p class="text-[11px] muted leading-5 mb-4">⌖ Локацияға 50 метрден жақын келіп, GPS арқылы растаңыз. Координаталар тапсырмада берілген нүктелерге сәйкес.</p><div id="quest-list" class="space-y-3"></div>
+      <div class="mt-6 flex gap-3 px-2"><span class="text-lg">💡</span><p class="text-[11px] leading-5 muted">Өз қалаңның қаһарманы бол. Бір квесттен баста!</p></div>
+    </section>
+    <section id="map" class="page" role="tabpanel" aria-labelledby="tab-map" hidden>
+      <p class="text-sm muted mb-1">Арқалықты бірге зерттейік</p><h1 class="text-[28px] font-extrabold mb-2">Қала картасы</h1><p class="text-xs muted mb-4">OpenStreetMap · Арқалық квесттері</p>
+      <article class="card p-5 mb-4" style="background:linear-gradient(135deg,#fff4c7,#f0f7dd);border-color:#d6c276">
+<span class="text-[10px] font-bold tracking-widest">🧩 ДЕМО-КВЕСТ</span><h2 class="font-bold text-lg mt-2">Қаланың құпия коды</h2>
+<p class="text-xs muted mt-2">Мұражай → Орталық саябақ → «Жалын». Үш код бөлігін жинап, алтын роботты ашыңыз!</p>
+<p class="text-[11px] muted mt-2">Демо: GPS тексерілмейді, аялдаманы батырмамен белгілейсіз. Сызық — аялдамалар реті, жаяу жүру бағыты емес.</p>
+<p id="secret-progress" class="font-bold my-3" role="status"></p><div class="flex flex-wrap gap-2"><button id="secret-show" class="action">Картадан бастау →</button><button id="secret-collect" class="action">Код бөлігін алу · демо</button></div></article>
+<div class="safe-map-wrap"><div id="real-map" aria-label="Арқалықтың интерактивті картасы"></div><button id="safe-toggle" class="safe-toggle" role="switch" aria-checked="false" aria-label="Қауіпсіз бағыт демо режимі">🌙 Қауіпсіз бағыт</button></div><section class="card p-4 mt-4" aria-labelledby="safe-heading"><h2 id="safe-heading" class="font-bold">🌙 Қауіпсіз қадам</h2><p id="safe-mode-status" class="text-sm mt-2" role="status"></p><p class="text-xs muted mt-2 leading-5">Демо қабат: жасыл сызық пен қызыл тор — ойдан алынған сценарий. Көшелердің жарығы, камералары және қауіпсіздігі тексерілмеген. Бұл навигациялық бағыт емес.</p><div class="flex flex-wrap gap-2 mt-3"><button id="safe-demo" class="action">⚠️ Қараңғы аймақ квесті · демо</button><button id="safe-path" class="pill">Жасыл бағыт үлгісі</button></div><p class="text-[11px] muted mt-3">Түнгі тексеру: 20:00–08:00, Арқалық уақыты. Қосымша қозғалысыңызды үздіксіз бақыламайды.</p></section>
+<p id="map-load-status" class="text-xs muted mt-2" role="status"></p>
+      <div class="flex flex-wrap gap-3 text-xs mt-3"><span>🟢 Квест</span><span>🟣 Квест + іс-шара</span><span>🔴 Хакатон</span><span>🔵 Сіздің орныңыз</span></div><p class="text-[11px] muted mt-3">🔥 Хакатон «Жалын» жастар орталығында өтіп жатыр. Қызыл маркерді басыңыз.</p><button id="locate-me" class="action w-full mt-4">⌖ Менің орным</button>
+      <p id="map-gps-status" role="status" class="text-xs muted leading-5 mt-3">Орныңызды көрсету үшін батырманы басып, геолокацияға рұқсат беріңіз. Көк шеңбер GPS дәлдігін көрсетеді.</p>
+      <div id="place-detail" class="card p-5 mt-4 text-sm">Орын атауы мен тапсырмаларды көру үшін картадағы маркерді басыңыз.</div>
+    </section>
+    <section id="events" class="page" role="tabpanel" aria-labelledby="tab-events" hidden>
+      <p class="text-sm muted mb-1">Қала ырғағына қосыл</p><h1 class="text-[28px] font-extrabold mb-2">Іс-шаралар</h1>
+      <p class="text-xs muted mb-5">Арқалық афишасы · Қазан 2026</p>
+      <div id="event-filters" class="flex gap-2 mb-4" role="group" aria-label="Іс-шараларды сүзу"><button class="pill active" data-event-filter="all" aria-pressed="true">Барлығы</button><button class="pill" data-event-filter="today" aria-pressed="false">Бүгін</button><button class="pill" data-event-filter="upcoming" aria-pressed="false">Алдағы</button></div>
+      <div class="flex justify-between items-center mb-4 text-[11px] muted"><span>Афиша күні: 08.10.2026</span><span id="event-count" aria-live="polite"></span></div>
+      <div id="event-list" class="space-y-4"></div>
+    </section>
+    <section id="profile" class="page" role="tabpanel" aria-labelledby="tab-profile" hidden><p class="text-sm muted mb-1">Сенің қаладағы ізің</p><h1 class="text-[28px] font-extrabold mb-5">Профиль</h1><div class="hero p-6 text-center"><div class="w-20 h-20 mx-auto rounded-full bg-[#d7fa77] text-4xl grid place-items-center mb-3">🧑‍🚀</div><h2 id="profile-name" class="font-bold text-xl">Қала зерттеушісі</h2><p class="text-xs text-[#d7fa77] mt-2" id="level">1-деңгей · Жаңа қадам</p><div class="flex justify-center gap-12 mt-6"><div><strong class="xp text-2xl">120</strong><p class="text-xs text-white/60 mt-1">Ұпай · XP</p></div><div><strong id="done-count" class="text-2xl">0</strong><p class="text-xs text-white/60 mt-1">Квест орындалды</p></div></div></div><form id="profile-form" class="card p-4 mt-4"><label for="name-input" class="text-sm font-semibold">Атыңыз</label><input id="name-input" maxlength="50" required class="w-full border rounded-xl p-3 mt-2" placeholder="Атыңызды енгізіңіз"><button class="action w-full mt-3" type="submit">Атын сақтау</button></form><h2 class="font-bold text-lg mt-6 mb-3">Жетістіктер</h2><div class="card p-5 flex items-center gap-4"><span class="quest-icon bg-[#f0f4df]">🏅</span><div><h3 class="font-bold text-sm">Алғашқы қадам</h3><p id="badge" class="text-xs muted mt-1">Алғашқы квестті орындап, белгі ал.</p></div></div><div class="card p-5 mt-3"><div class="flex justify-between text-sm"><span>Тіркелген іс-шаралар</span><b id="joined-count">0</b></div></div><section aria-labelledby="collection-heading" class="mt-6"><div class="flex items-center justify-between gap-3"><h2 id="collection-heading" class="font-bold text-lg">🤖 Менің роботтарым</h2><span class="pill"><b id="robot-count">0</b> робот</span></div><p class="text-xs muted mt-2">Ұсталған роботтар осы браузерде сақталады. Әр квест үшін AR сыйақысы бір рет беріледі.</p><div id="robot-collection"></div></section><article id="secret-trophy" class="card p-5 mt-4" style="background:#fff4c7;border-color:#d6b64f" hidden><span class="text-4xl" aria-hidden="true">🤖 🥇</span><h3 class="font-bold mt-3">Алтын робот · Демо коллекция</h3><p class="text-sm mt-2">«Арқалық зерттеушісі» белгісі ашылды!</p><p class="text-xs muted mt-2">Қаланың құпия коды: ARQ-2026. Жетістік осы браузерде сақталады.</p></article><button id="business-open" class="action w-full mt-5">💎 Бизнес-кабинет (Серіктестер үшін)</button><button id="partner-discount" class="action w-full mt-5">Серіктестерден жеңілдік алу</button><p id="discount-message" class="text-xs muted mt-3" role="status"></p><p class="text-xs muted leading-5 mt-6">Бұл — демо профиль. Прогресс осы браузерде сақталады. Нақты аккаунт пен сервер қосылмаған.</p></section>
+    <section id="leaderboard" class="page" role="tabpanel" aria-labelledby="tab-leaderboard" hidden><p class="text-sm muted mb-1">Қаланың белсенді қаһармандары</p><h1 class="text-[28px] font-extrabold mb-3">Рейтинг 🏆</h1><div class="hero p-5 mb-5"><p class="text-[#d7fa77] font-bold text-lg">Әр қадам — жаңа жетістік</p><p class="text-xs text-white/75 mt-2">Квест орында, роботпен таныс, ұпай жина!</p></div><p class="text-xs muted mb-4">Сіздің нақты прогресіңіз және 4 демо қатысушы. Бұл рейтинг осы браузерде есептеледі. Оқу орындарының ұпайлары — демо деректер.</p><div id="rank-tabs" role="tablist" aria-label="Рейтинг түрі" class="flex gap-2 mb-4"><button id="rank-tab-people" class="pill active" role="tab" aria-selected="true" aria-controls="rank-people" data-rank="people">Жеке рейтинг</button><button id="rank-tab-schools" class="pill" role="tab" aria-selected="false" aria-controls="rank-schools" tabindex="-1" data-rank="schools">Оқу орындары</button></div><div id="rank-people" role="tabpanel" aria-labelledby="rank-tab-people"></div><div id="rank-schools" role="tabpanel" aria-labelledby="rank-tab-schools" hidden></div><div class="card p-4 mt-5"><p class="text-xs muted">Сіздің жеке прогресіңіз</p><p id="rank-self" class="font-bold mt-2"></p></div></section>
+<section id="tourism" class="page" aria-labelledby="tourism-title" hidden><div class="hero p-6 mb-5"><span class="text-4xl">🎒</span><p class="text-xs text-[#d7fa77] mt-4 uppercase tracking-widest">Далаға сапар</p><h1 id="tourism-title" class="text-2xl font-extrabold mt-2">Арқалыққа қош келдіңіз!<br>Не көргіңіз келеді?</h1><p class="text-xs text-white/75 mt-3">Тарих, жергілікті дәм және жаңа әсерлер.</p></div><label for="tour-search" class="text-sm font-semibold">Қайда барғыңыз келеді?</label><input id="tour-search" type="search" class="w-full border rounded-2xl p-3 mt-2 mb-4" placeholder="Мұражай, саябақ, ұлттық тағам…"><div id="tour-categories" class="flex gap-2 overflow-x-auto pb-4" role="group" aria-label="Туризм санаттары"></div><p id="tour-count" class="text-xs muted mb-3" role="status"></p><p class="text-[11px] muted mb-4">Суреттер — иллюстрациялық үлгі. Бағалар мен нақты мекенжайлар нақтылануда.</p><div id="tour-list" class="space-y-4"></div><button id="guide-open" class="action">✨ TorgAI Гид</button></section>
+<section id="match" class="page" aria-labelledby="match-title" hidden>
+ <div class="hero p-6 mb-5"><p class="text-xs text-[#d7fa77] font-bold">ОРТАҚ ҚЫЗЫҒУШЫЛЫҚ · ЖАҢА ДОСТАР</p><h1 id="match-title" class="text-3xl font-extrabold mt-3">TorgAI Match ✦</h1><p class="text-sm text-white/75 mt-3">Өз командаңды тап. Спорт, ойын, идея — бірге қызығырақ!</p><button id="match-create" class="action w-full mt-5">＋ Жиын құру · +15 XP</button></div>
+ <p class="text-xs muted leading-5 mb-4">Демо модуль: жиындар мен қатысу белгілері тек осы браузерде сақталады. AI тексеруі имитацияланады; басқа адамдарға ұсыныс жіберілмейді.</p>
+ <div class="flex justify-between items-center mb-4"><h2 class="font-bold text-lg">Белсенді жиындар</h2><span id="match-count" class="text-xs muted"></span></div><div id="match-list" class="space-y-4"></div>
+</section>
+<dialog id="match-dialog" class="event-dialog" aria-labelledby="match-dialog-title">
+ <div class="flex justify-between items-center gap-3"><h2 id="match-dialog-title" class="text-xl font-bold">Жаңа жиын ✦</h2><button id="match-close" class="pill" type="button" aria-label="Жиын құруды жабу">✕</button></div>
+ <form id="match-form" class="mt-5 space-y-4">
+ <label class="match-label">Жиын тақырыбы<input name="title" required maxlength="100" placeholder="Орталық саябақта футбол ойнайық"></label>
+ <label class="match-label">Санаты<select name="category" required><option>Спорт</option><option>Киберспорт</option><option>Үстел ойындары</option><option>IT/Оқу</option><option>Шығармашылық</option><option>Еріктілік</option></select></label>
+ <label class="match-label">Мәні мен сипаттамасы<textarea name="description" required maxlength="700" rows="3" placeholder="Не істейміз, кімдерге арналған, не алып келу керек?"></textarea></label>
+ <label class="match-label">Жиналатын орны<input name="place" required maxlength="120" placeholder="Жалын жастар орталығы"></label>
+ <label class="match-label">Өтетін күні мен уақыты<input name="when" type="datetime-local" required></label>
+ <label class="match-label">Қажетті адам саны<input name="capacity" type="number" min="2" max="100" step="1" value="8" required><span class="text-xs muted font-normal">Ұйымдастырушымен бірге, 2–100 адам.</span></label>
+ <p id="match-error" role="alert" class="text-sm text-red-700"></p><button id="match-publish" class="action w-full" type="submit">Жариялау →</button>
+ </form>
+ <div id="match-scan" class="mt-6" hidden><div class="match-scanner" aria-hidden="true">🛡️<span></span></div><h3 class="text-center font-bold mt-4">TorgAI Қауіпсіздік және Этика модулі тексеруде...</h3><p class="text-xs muted text-center mt-2">Демо анимация · нақты қауіпсіздік сараптамасы жүргізілмейді.</p><div class="match-track mt-5"><div id="match-progress"></div></div><div id="match-steps" role="status" aria-live="polite" class="text-sm space-y-3 mt-5"></div><p class="text-xs muted mt-5">Терезені жапсаңыз, жариялау тоқтатылады.</p></div>
+</dialog>
+
+  <footer class="mt-8 pt-5 border-t border-[#e0e6d8] text-center text-xs muted leading-5" aria-label="TorgAI туралы"><p class="font-semibold">© 2026 TorgAI — Қала сенен басталады</p><p class="mt-1">Торғай өңірінің цифрлық тынысы</p></footer>
+  </main>
+  <nav class="nav" role="tablist" aria-label="Негізгі навигация"><button id="tab-quests" role="tab" aria-selected="true" aria-controls="quests" data-tab="quests"><span><svg><use href="#i-compass"/></svg></span><span>Квесттер</span></button><button id="tab-map" role="tab" aria-selected="false" aria-controls="map" data-tab="map" tabindex="-1"><span><svg><use href="#i-map"/></svg></span><span>Карта</span></button><button id="tab-events" role="tab" aria-selected="false" aria-controls="events" data-tab="events" tabindex="-1"><span><svg><use href="#i-calendar"/></svg></span><span>Іс-шаралар</span></button><button id="tab-profile" role="tab" aria-selected="false" aria-controls="profile" data-tab="profile" tabindex="-1"><span><svg><use href="#i-user"/></svg></span><span>Профиль</span></button><button id="tab-leaderboard" role="tab" aria-selected="false" aria-controls="leaderboard" data-tab="leaderboard" tabindex="-1"><span class="text-xl">🏆</span><span>Рейтинг</span></button></nav>
+</div><div id="toast" role="status" aria-live="polite"></div>
+<dialog id="event-dialog" class="event-dialog" aria-labelledby="event-dialog-title"><form method="dialog" class="flex justify-end"><button class="pill" aria-label="Терезені жабу" autofocus>Жабу ✕</button></form><div id="event-dialog-content"></div></dialog>
+<dialog id="ai-dialog" class="event-dialog" aria-labelledby="ai-title"><form method="dialog" class="flex justify-end gap-2"><button type="button" data-sos-open class="pill" style="background:#b42332;color:white">SOS</button><button class="pill" autofocus>Жабу ✕</button></form><p class="text-sm font-bold mt-3 text-green-700">✓ Локация расталды!</p><h2 id="ai-title" class="text-xl font-bold mt-3">TorgAI тапсырмасы</h2><p class="text-xs muted mt-2">AI имитациясы · мәтіннің толықтығы тексеріледі, нақты мазмұн расталмайды. Кемінде 10 таңба жазыңыз.</p><p id="gps-detail" class="text-xs muted mt-3"></p><p id="ai-question" class="font-semibold my-5"></p><form id="ai-answer-form"><label for="ai-answer" class="text-sm font-semibold">Жауабыңыз</label><input id="ai-answer" type="text" maxlength="300" autocomplete="off" placeholder="Жауабыңызды жазыңыз…" class="w-full border rounded-xl p-3 mt-2 bg-white" aria-describedby="ai-feedback"><button id="ai-submit" type="submit" class="action w-full mt-3">Жауапты тексеру ✦</button></form><div id="confetti" aria-hidden="true"></div><p id="ai-feedback" class="text-sm mt-4" role="status"></p></dialog>
+<dialog id="ar-dialog" aria-labelledby="ar-title"><header class="ar-top"><div><h2 id="ar-title">🤖 3D AR робот</h2><p class="text-xs opacity-75 mt-1">Тап. Ұстап ал. Коллекцияға қос!</p></div><div class="flex gap-2 items-center"><button type="button" data-sos-open class="pill" style="background:#b42332;color:white">SOS</button><button id="ar-close" class="pill">Жабу ✕</button></div></header><div id="ar-stage"><div id="ar-viewer-host"></div><div class="capture-capsule" aria-hidden="true"></div></div><div class="ar-bottom"><p id="ar-status" role="status" class="text-sm mb-3">3D робот жүктелуде…</p><p id="ar-help" class="text-xs text-white/70 leading-5 mb-4">Роботты саусақпен бұрып, үлкейтіңіз. Құрылғыңыз қолдаса, «Кеңістікте көру» батырмасын басыңыз. AR режимінен оралған соң капсуламен роботты ұстап алыңыз.</p><button id="ar-reward" class="action w-full text-base" disabled>◉ Роботты ұстап алу · +50 ұпай</button><div id="capture-result" role="status" hidden><p class="text-3xl mb-2" aria-hidden="true">🤖 ✨</p><h3 id="capture-message" class="font-bold text-lg"></h3><p id="capture-saved" class="text-sm mt-3 text-white/80"></p><p id="capture-points" class="font-bold text-xl mt-3 text-[#d7fa77]"></p></div><button id="capture-collection" class="action w-full" hidden>Коллекцияға өту →</button><button id="ar-retry" class="pill w-full mt-3" hidden>Қайта жүктеу</button></div><div id="ar-confetti" aria-hidden="true"></div></dialog>
+<button id="report-open" aria-label="TorgAI Диспетчер: қалалық мәселені хабарлау" title="TorgAI Диспетчер">🚨</button>
+<dialog id="business-dialog" class="event-dialog" aria-labelledby="business-title"><form method="dialog" class="flex justify-end"><button class="pill">Жабу ✕</button></form><h2 id="business-title" class="text-xl font-bold mt-4">💎 Бизнес-кабинет</h2><p class="text-xs muted my-3">Демеушілік квесттің демо нұсқасын қосыңыз. Төлем алынбайды, квест тек осы браузерде сақталады.</p><form id="business-form" class="space-y-4"><div><label for="business-name">Квест атауы</label><input id="business-name" required maxlength="120" placeholder="Dodo Pizza-дан жаңа пицца" class="w-full border rounded-xl p-3 mt-2"></div><div><label for="business-points">Ұпай саны</label><input id="business-points" type="number" inputmode="numeric" min="1" max="10000" step="1" value="100" required class="w-full border rounded-xl p-3 mt-2"></div><p id="business-feedback" role="status" class="text-xs muted"></p><button class="action w-full" type="submit">Қосу</button></form></dialog>
+<dialog id="report-dialog" class="event-dialog" aria-labelledby="report-title"><form method="dialog" class="flex justify-end"><button class="pill">Жабу ✕</button></form><h2 id="report-title" class="text-xl font-bold mt-4">🤖 TorgAI Диспетчер</h2><p class="text-xs muted my-3">Демо режим: GPS нақты алынады. Фото мен жіберу имитацияланады, әкімдікке дерек жіберілмейді.</p><form id="report-form"><button type="button" id="report-photo" class="action w-full">📸 Суретке түсіру</button><p id="photo-status" class="text-xs muted mt-2" role="status">Фото әлі қосылмаған</p><label for="report-description" class="block text-sm font-semibold mt-4">Мәселені сипаттаңыз (мысалы, құдық ашық жатыр)</label><textarea id="report-description" required minlength="5" maxlength="1000" rows="4" class="w-full border rounded-xl p-3 mt-2" placeholder="Қандай мәселені байқадыңыз?"></textarea><button id="report-send" type="submit" class="action w-full mt-4">Жіберу</button></form><p id="report-feedback" class="text-sm leading-6 mt-4" role="status"></p></dialog>
+<dialog id="dispatch-dialog" class="event-dialog" aria-labelledby="dispatch-title"><div class="dispatch-check" aria-hidden="true">✓</div><p class="text-center text-xs muted mt-3">ДЕМО НӘТИЖЕ · НАҚТЫ ЖІБЕРУ ЖОҚ</p><h2 id="dispatch-title" class="text-xl font-bold text-center mt-3">🤖 TorgAI Диспетчер</h2><p id="dispatch-level" class="dispatch-level"></p><p id="dispatch-message" class="text-sm leading-6 mt-4" role="status"></p><p id="dispatch-gps" class="text-xs muted mt-3"></p><p class="text-center font-bold text-lg text-green-700 mt-5">✦ +20 ұпай қосылды!</p><p class="text-xs muted mt-3">Бұл — кілт сөздерге негізделген сұрыптау имитациясы. Өтініш мекемелерге нақты жіберілген жоқ.</p><form method="dialog"><button class="action w-full mt-5">Түсінікті</button></form></dialog>
+<dialog id="guide-dialog" class="event-dialog" aria-labelledby="guide-title"><form method="dialog" class="flex justify-end"><button class="pill">Жабу ✕</button></form><h2 id="guide-title" class="text-xl font-bold mt-3">✨ TorgAI Гид</h2><p class="text-xs muted mt-2 mb-4">Демо көмекші · жауаптар дайын ережелерден құралады.</p><div id="guide-chat" role="log" aria-live="polite" class="space-y-3"><p class="guide-reply">Мен — TorgAI Гид, Арқалық пен Торғай өңіріндегі жеке саяхат көмекшіңізбін. Қандай бағыттағы демалыс іздеп жүрсіз?</p></div><form id="guide-form" class="mt-4"><label for="guide-input" class="text-xs muted">Сұрағыңыз</label><input id="guide-input" maxlength="500" required class="w-full border rounded-xl p-3 mt-2" placeholder="Мысалы, тарихи орындар"><button class="action w-full mt-2">Жіберу</button></form></dialog>
+<dialog id="secret-dialog" class="event-dialog" aria-labelledby="secret-title" style="position:relative"><div id="secret-confetti" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div><div style="position:relative"><p class="text-5xl text-center">🤖 ✨</p><h2 id="secret-title" class="text-xl font-bold mt-4">Құпия код ашылды: ARQ-2026!</h2><p class="text-sm mt-3">Алтын робот және «Арқалық зерттеушісі» белгісі сіздікі!</p><p class="text-xs muted mt-3">Бұл — демо жетістік. Оны профильден көре аласыз.</p><button id="secret-profile" class="action w-full mt-4">Профильге өту →</button><form method="dialog"><button class="pill w-full mt-2">Жабу</button></form></div></dialog>
+<button id="safe-sos" aria-label="SOS: жедел қоңырау және GPS">SOS</button>
+<dialog id="safe-warning" class="event-dialog" aria-labelledby="safe-warning-title"><h2 id="safe-warning-title" class="text-xl font-bold">⚠️ TorgAI Қауіпсіздік ескертуі</h2><p id="safe-warning-text" class="text-sm leading-6 mt-4"></p><button id="safe-alternative" class="action w-full mt-4">Жасыл бағыт үлгісін көру</button><button id="safe-continue" class="pill w-full mt-3">Дерек расталмағанын түсіндім · Жалғастыру</button><form method="dialog"><button class="pill w-full mt-3">Жабу</button></form></dialog>
+<dialog id="sos-dialog" class="event-dialog" aria-labelledby="sos-title"><form method="dialog" class="flex justify-end"><button class="pill" aria-label="SOS терезесін жабу">Жабу ✕</button></form><h2 id="sos-title" class="text-2xl font-bold mt-3">SOS · Көмек шақыру</h2><p class="text-sm mt-3">Шұғыл қауіп болса, GPS-ті күтпей қоңырау шалыңыз.</p><div class="flex gap-2 mt-4"><a class="sos-call" href="tel:102">102 · Полиция</a><a class="sos-call" href="tel:112">112 · Жедел көмек</a></div><p class="text-xs muted mt-3">Батырма телефонның қоңырау терезесін ашады. Қосымша қоңырау шалмайды, координаталарды автоматты жібермейді.</p><p id="sos-gps" class="card p-3 mt-4 text-sm" role="status">GPS анықталуда…</p><button id="sos-refresh" class="action w-full mt-3">⌖ GPS-ті жаңарту</button><div id="sos-place" class="mt-4"></div><p class="text-xs muted mt-4">Орындардың қазір ашық болуы, жарығы және адам болуы расталмаған. Қауіпсіздігіне кепілдік берілмейді.</p><a class="text-xs underline block mt-3" href="https://www.gov.kz/situations/729/1519" target="_blank" rel="noopener noreferrer">Жедел қызмет нөмірлері · gov.kz</a></dialog>
+
+<dialog id="welcome-dialog" class="event-dialog" aria-modal="true" aria-labelledby="welcome-title" aria-describedby="welcome-description">
+  <div class="welcome-orb" aria-hidden="true">🧑‍🚀</div>
+  <p class="text-center text-xs font-bold tracking-widest text-[#d7fa77] mb-3">TorgAI</p>
+  <h2 id="welcome-title" class="text-2xl font-extrabold text-center">TorgAI-ға қош келдіңіз!</h2>
+  <p id="welcome-description" class="text-sm text-white/75 text-center mt-3 mb-6">Арқалық пен Торғай өңірін бірге ашайық: квесттер, AI-көмекшілер және роботтар коллекциясы.</p>
+  <form id="welcome-form">
+    <label for="welcome-name" class="block font-semibold text-sm mb-2">Атыңызды енгізіңіз</label>
+    <input id="welcome-name" name="name" autocomplete="given-name" required maxlength="50" autofocus class="w-full rounded-xl p-3" placeholder="Сіздің атыңыз">
+    <p id="welcome-error" class="text-sm text-[#ffe09c] mt-2" role="alert"></p>
+    <button type="submit" class="action w-full mt-4 text-base">Бастау →</button>
+  </form>
+  <p class="text-xs text-white/60 leading-5 mt-5 text-center">Атыңыз бен прогресіңіз осы браузерде сақталады. Бұл — жергілікті демо тіркелу.</p>
+</dialog>
+<script>
+/* Local robot collection. Uses the app's existing state, save, and AR lifecycle. */
+let robotCaptureTimer = null;
+let robotCaptureBusy = false;
+
+function hasCapturedRobot(questId) {
+  return state.robotCaptures.some(robot => robot.questId === questId);
+}
+
+function resetRobotCapture() {
+  clearTimeout(robotCaptureTimer);
+  robotCaptureBusy = false;
+  document.querySelector('#ar-stage').classList.remove('is-catching', 'is-caught');
+  document.querySelector('#capture-result').hidden = true;
+  document.querySelector('#capture-collection').hidden = true;
+  document.querySelector('#ar-reward').hidden = false;
+  document.querySelector('#ar-reward').textContent = '◉ Роботты ұстап алу · +50 ұпай';
+}
+
+function prepareRobotCapture() {
+  const captured = hasCapturedRobot(arQuest);
+  const rewarded = state.arCollected.includes(arQuest);
+  document.querySelector('#ar-reward').hidden = captured;
+  document.querySelector('#ar-reward').disabled = captured;
+  document.querySelector('#ar-reward').textContent = rewarded
+    ? '◉ Роботты коллекцияға қосу'
+    : '◉ Роботты ұстап алу · +50 ұпай';
+  document.querySelector('#capture-collection').hidden = !captured;
+  document.querySelector('#ar-status').textContent = captured
+    ? 'Бұл робот коллекцияңызда сақталған. Оны 3D немесе AR режимінде тамашалаңыз.'
+    : rewarded
+      ? 'Робот дайын! Осы квесттің AR сыйақысы бұрын берілген, роботты қосымша ұпайсыз сақтай аласыз.'
+      : 'Робот табылды! Капсуланы лақтырып, коллекцияңызға қосыңыз.';
+}
+
+function captureRobot() {
+  if (!arReady || !arQuest || robotCaptureBusy || hasCapturedRobot(arQuest)) return;
+  const questId = arQuest;
+  const session = arSession;
+  robotCaptureBusy = true;
+  document.querySelector('#ar-reward').disabled = true;
+  document.querySelector('#ar-reward').textContent = 'Капсула ұшып барады…';
+  document.querySelector('#ar-status').textContent = 'Роботты ұстап жатырмыз…';
+  document.querySelector('#ar-stage').classList.add('is-catching');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  robotCaptureTimer = setTimeout(() => {
+    if (session !== arSession || !arReady || !document.querySelector('#ar-dialog').open) {
+      robotCaptureBusy = false;
+      return;
+    }
+    const rewarded = state.arCollected.includes(questId);
+    state.robotCaptures.push({ questId, capturedAt: new Date().toISOString() });
+    if (!rewarded) {
+      state.arCollected.push(questId);
+      state.points += 50;
+    }
+    const persisted = save();
+    render();
+    document.querySelector('#ar-stage').classList.add('is-caught');
+    document.querySelector('#ar-status').textContent = 'Робот ұсталды!';
+    document.querySelector('#capture-result').hidden = false;
+    document.querySelector('#capture-message').textContent = 'Сіз AI хакатон роботын ұстап алдыңыз!';
+    document.querySelector('#capture-saved').textContent = persisted
+      ? 'Бұл робот сіздің коллекцияңызда сақталады — осы браузерде қайта ашып көре аласыз.'
+      : 'Робот осы сессиядағы коллекцияға қосылды. Браузер жадына сақтау қолжетімсіз.';
+    document.querySelector('#capture-points').textContent = rewarded
+      ? 'Осы квесттің +50 ұпайы бұрын берілген.' : '+50 ұпай қосылды!';
+    document.querySelector('#ar-reward').hidden = true;
+    document.querySelector('#capture-collection').hidden = false;
+    celebrate('#ar-confetti');
+    robotCaptureBusy = false;
+  }, reducedMotion ? 80 : 1750);
+}
+
+function renderRobotCollection() {
+  const container = document.querySelector('#robot-collection');
+  container.replaceChildren();
+  document.querySelector('#robot-count').textContent = state.robotCaptures.length;
+  if (!state.robotCaptures.length) {
+    const empty = document.createElement('p');
+    empty.className = 'card p-4 text-sm muted';
+    empty.textContent = 'Әзірге робот жоқ. Квесттегі AR-камераны ашып, бірінші роботты ұстап алыңыз!';
+    container.appendChild(empty);
+    return;
+  }
+  state.robotCaptures.forEach(robot => {
+    const quest = quests.find(q => q.id === robot.questId);
+    if (!quest) return;
+    const card = document.createElement('article');
+    card.className = 'robot-collection-card';
+    const avatar = document.createElement('span');
+    avatar.className = 'robot-avatar';
+    avatar.textContent = '🤖';
+    avatar.setAttribute('aria-hidden', 'true');
+    const info = document.createElement('div');
+    const title = document.createElement('h3');
+    title.textContent = 'AI хакатон роботы';
+    title.className = 'font-bold text-sm';
+    const place = document.createElement('p');
+    place.className = 'text-xs muted mt-1';
+    place.textContent = quest.place;
+    const date = document.createElement('p');
+    date.className = 'text-[11px] muted mt-1';
+    date.textContent = new Date(robot.capturedAt).toLocaleDateString('kk-KZ');
+    info.append(title, place, date);
+    const view = document.createElement('button');
+    view.className = 'action';
+    view.textContent = '3D көру';
+    view.onclick = () => openAR(robot.questId);
+    card.append(avatar, info, view);
+    container.appendChild(card);
+  });
+}
+
+document.querySelector('#capture-collection').addEventListener('click', () => {
+  closeAR();
+  switchTab('profile');
+  document.querySelector('#collection-heading').scrollIntoView({ block: 'start' });
+});
+
+</script>
+<script>
+// Move existing DOM nodes rather than recreate forms, IDs, or persisted features.
+const dashboardMain=document.querySelector('main');
+const dashboardHeader=document.querySelector('.shell > header');
+dashboardHeader.className='dashboard-header';
+const brand=dashboardHeader.querySelector('a');brand.href='#map';
+const city=dashboardHeader.lastElementChild;
+const brandGroup=document.createElement('div');brandGroup.className='dashboard-brand';brandGroup.append(brand,city);
+const nav=document.querySelector('.nav');nav.className='nav dashboard-nav';
+nav.innerHTML=[['map','🗺️','Карта & Қауіпсіздік'],['community','🤝','TorgAI Match'],['activity','🏆','Квесттер & Рейтинг'],['assistant','🤖','AI-Көмекші']].map(([id,icon,label])=>`<button id="tab-${id}" role="tab" aria-controls="module-${id}" aria-selected="false" data-tab="${id}"><span>${icon}</span><span>${label}</span></button>`).join('');
+const account=document.createElement('button');account.id='dashboard-profile';account.className='dashboard-account';account.setAttribute('aria-haspopup','dialog');account.innerHTML='<span class="account-avatar">◉</span><span><strong id="header-name"></strong><small><span id="header-level"></span> · <b class="xp">0</b> XP</small></span>';
+dashboardHeader.replaceChildren(brandGroup,nav,account);
+const slogan=document.createElement('div');slogan.className='dashboard-slogan';slogan.innerHTML='<span class="dashboard-live">● ARQALYQ / SMART CITY</span><h1>TorgAI — Жастар мен қаланы біріктіретін цифрлық экожүйе</h1>';
+dashboardHeader.after(slogan);
+const oldShortcuts=document.querySelector('#tourism-open').parentElement;oldShortcuts.hidden=true;
+const modules={};
+for(const id of ['map','community','activity','assistant']){const section=document.createElement('section');section.id='module-'+id;section.className='dashboard-module';section.setAttribute('role','tabpanel');section.setAttribute('aria-labelledby','tab-'+id);section.hidden=true;dashboardMain.prepend(section);modules[id]=section;}
+document.querySelectorAll('.page').forEach(p=>{p.removeAttribute('role');p.removeAttribute('aria-labelledby');});
+modules.map.append(document.querySelector('#map'));
+modules.community.classList.add('dashboard-grid');modules.community.append(document.querySelector('#events'),document.querySelector('#match'));
+modules.activity.classList.add('activity-grid');modules.activity.append(document.querySelector('#quests'));
+const activitySide=document.createElement('aside');activitySide.className='activity-side';activitySide.append(document.querySelector('#leaderboard'));
+const coupon=document.createElement('section');coupon.className='dashboard-coupon card';coupon.innerHTML='<span class="text-xs muted">СЕРІКТЕСТЕР</span><h2 class="font-bold text-xl mt-2">Ұпайың — жаңа мүмкіндік</h2><p class="text-sm muted mt-2">Жеңілдік купондары жақында қолжетімді болады.</p>';
+coupon.append(document.querySelector('#partner-discount'),document.querySelector('#discount-message'));activitySide.append(coupon);modules.activity.append(activitySide);
+const profileDialog=document.createElement('dialog');profileDialog.id='profile-dialog';profileDialog.className='event-dialog';profileDialog.setAttribute('aria-label','Пайдаланушы профилі');profileDialog.innerHTML='<form method="dialog" class="flex justify-end"><button class="pill">Жабу ✕</button></form>';profileDialog.append(document.querySelector('#profile'));document.body.append(profileDialog);
+modules.assistant.innerHTML='<div class="assistant-heading"><p class="dashboard-live">TORGAI INTELLIGENCE</p><h2>TorgAI Көмекші</h2><p class="muted">Қалалық мәселе туралы хабарлаңыз немесе қала жайлы сұраңыз.</p></div><div class="assistant-layout"><section class="card assistant-panel"><div class="assistant-tabs" role="tablist" aria-label="Көмек түрі"><button id="assist-tab-report" role="tab" aria-controls="assist-report" data-assist="report" class="pill active">📸 Өтініш беру</button><button id="assist-tab-guide" role="tab" aria-controls="assist-guide" data-assist="guide" class="pill">✨ Қала жайлы сұрау</button></div><div id="assist-report" role="tabpanel" aria-labelledby="assist-tab-report"><p class="text-xs muted my-4">Демо диспетчер: фото мен жіберу имитацияланады. Әкімдікке дерек жіберілмейді.</p></div><div id="assist-guide" role="tabpanel" aria-labelledby="assist-tab-guide" hidden><p class="text-xs muted my-4">Демо көмекші · каталогқа негізделген жауаптар. Нақты уақыттағы көлік деректері қосылмаған.</p></div></section><aside class="card assistant-info"><span class="text-3xl">✦</span><h3 class="font-bold text-xl mt-3">Бір терезе. Қалаға жақын.</h3><p class="muted text-sm mt-3">Құбыр, тазалық, жарық — өтініш санатын анықтаймыз. Демалыс пен тарихи орындарды каталогтан табамыз.</p><details id="tourism-drawer" class="mt-5"><summary class="font-bold">🎒 Орындар мен туризм каталогы</summary></details></aside></div>';
+document.querySelector('#assist-report').append(document.querySelector('#report-form'),document.querySelector('#report-feedback'));
+document.querySelector('#assist-guide').append(document.querySelector('#guide-chat'),document.querySelector('#guide-form'));
+document.querySelector('#tourism-drawer').append(document.querySelector('#tourism'));
+document.querySelector('#guide-input').placeholder='Мысалы, мұражай немесе қалалық көлік';
+document.querySelector('#report-open').hidden=true;
+document.querySelector('#guide-open').style.position='static';
+const filters=document.createElement('div');filters.id='map-filters';filters.className='map-filter-row';filters.setAttribute('aria-label','Картадағы нүктелерді сүзу');filters.innerHTML=[['all','Барлығы'],['places','Нысандар'],['events','Іс-шаралар'],['eco','Эко-нүктелер']].map(([id,label])=>`<button class="pill ${id==='all'?'active':''}" data-map-filter="${id}" aria-pressed="${id==='all'}">${label}</button>`).join('');document.querySelector('.safe-map-wrap').before(filters);
+document.querySelector('#safe-toggle').textContent='🌙 Қауіпсіз түнгі бағыт';
+const safetyLabel=document.createElement('p');safetyLabel.id='dashboard-safety-label';safetyLabel.className='text-xs muted mb-3';safetyLabel.textContent='ДЕМО: жасыл сызық пен қызыл аймақ нақты қауіпсіздік деректері емес. Бұл бағытпен жүрмеңіз.';safetyLabel.hidden=true;document.querySelector('.safe-map-wrap').before(safetyLabel);
+// Compact long secondary panels without removing their content or controls.
+function foldPanel(node,label){const details=document.createElement('details');details.className='dashboard-details';const summary=document.createElement('summary');summary.textContent=label;node.before(details);details.append(summary,node);}
+foldPanel(document.querySelector('#secret-progress').closest('article'),'🧩 Қаланың құпия коды · демо-квест');
+foldPanel(document.querySelector('#safe-heading').closest('section'),'🌙 Қауіпсіз қадам · режим туралы');
+const qHero=document.querySelector('#quests > .hero');foldPanel(qHero,'⚡ Менің деңгейім мен прогресім');
+document.querySelector('#leaderboard > .hero').hidden=true;
+document.querySelector('#quests h1').textContent='Қалалық квесттер';
+document.querySelector('#leaderboard h1').textContent='ТОП-5 тұрғын 🏆';
+document.querySelector('#match .hero p.text-sm').textContent='Спорт, ойын, идея — бірге қызығырақ.';
+document.querySelector('#profile').hidden=false;
+
+// Coordinates supplied by the user for the three quest locations.
+const locations=[
+ {questId:'culture',name:'Дала өлкесінің тарихы мұражайы',lat:50.250822,lng:66.906513,question:'Мұражай кіреберісіндегі жазуды осында көшіріп жазыңыз.'},
+ {questId:'eco',name:'Орталық саябақ',lat:50.253707,lng:66.905033,question:'Саябақтың ортасынан қандай нысан көрдіңіз? Атауы мен көрінісін сипаттаңыз.'},
+ {questId:'social',name:'«Жалын» жастар орталығы',lat:50.254261,lng:66.913599,question:'Іс-шаралар тақтасынан оқыған бір іс-шараның атауы мен уақытын жазыңыз.'}
+];
+const GPS_RADIUS_METERS=50;
+let gpsPending=null,activeQuestion=null;
+function haversineMeters(lat1,lng1,lat2,lng2){
+ const rad=x=>x*Math.PI/180;
+ const a=Math.sin(rad(lat2-lat1)/2)**2+Math.cos(rad(lat1))*Math.cos(rad(lat2))*Math.sin(rad(lng2-lng1)/2)**2;
+ return 6371000*2*Math.asin(Math.sqrt(Math.max(0,Math.min(1,a))));
+}
+const quests=[
+ {id:'culture',icon:'🏛️',bg:'#f7ede0',category:'Таным',title:'Дала өлкесінің тарихы',description:'Мұражайға барып, кіреберістегі жазуды оқы.',xp:50,time:'15 мин',place:'Дала өлкесінің тарихы мұражайы'},
+ {id:'eco',icon:'🌳',bg:'#eef4df',category:'Серуен',title:'Алаңдағы серуен',description:'Орталық саябаққа барып, ортадағы нысанды тап.',xp:30,time:'15 мин',place:'Орталық саябақ'},
+ {id:'social',icon:'🔥',bg:'#eceafa',category:'Жастар',title:'Жастар орталығы',description:'«Жалын» жастар орталығына барып, іштегі іс-шаралар тақтасын қара.',xp:40,time:'10 мин',place:'«Жалын» жастар орталығы'}
+];
+// Relative event labels refer to the supplied demo schedule for 8 October 2026.
+const events=[
+{id:'taza',eco:true,featured:true,icon:'🌿',title:'«Таза Қазақстан» жалпықалалық экологиялық акциясы',date:'10.10.2026',iso:'2026-10-10T09:00:00+05:00',time:'09:00',place:'Наурыз алаңы',organizer:'',status:'upcoming',description:'Арқалықты бірге тазартайық! Наурыз алаңында жиналып, қаламыздың тазалығына бірге үлес қосамыз. Құрал-саймандар мен қаптар ұйымдастырушылар тарапынан беріледі',color:'#28794c'},
+{id:'hackathon',locationId:'social',featured:false,icon:'🔥',title:'Arqalyq AI Hackathon: Vibe Coding Challenge',date:'Бүгін',iso:'2026-10-08',time:'Өтіп жатыр!',place:'«Жалын» жастар орталығы, Арқалық',organizer:'Qostanai Hub',status:'today',description:'Қаланың басты іс-шарасы! Vibe Coding Challenge қатысушылары жасанды интеллект көмегімен өз идеяларын жүзеге асыруда.',color:'#a83426'},
+{id:'museum',locationId:'culture',icon:'🏛️',title:'Дала өлкесі тарихы мұражайындағы көрме',date:'Ертең',iso:'2026-10-09T15:00:00+05:00',time:'15:00',place:'Дала өлкесінің тарихы мұражайы, Арқалық',organizer:'',status:'upcoming',description:'Өлкенің тарихымен және мәдени мұрасымен танысыңыз.',color:'#b38b59'},
+{id:'cinema',locationId:'eco',icon:'🎬',title:'Орталық саябақтағы ашық аспан астындағы кино-кеш',date:'Жұма',iso:'2026-10-09T19:00:00+05:00',time:'19:00',place:'Орталық саябақ, Арқалық',organizer:'',status:'upcoming',description:'Ашық аспан астындағы кино-кешке қосылыңыз. Достарыңызбен бірге кешті саябақта өткізіңіз.',color:'#796395'}];
+let state={done:[],joined:[],arCollected:[],robotCaptures:[],secretStep:0,points:0,registered:false,name:'Қала зерттеушісі'},filter='all',eventFilter='all',toastTimer;
+try{const saved=JSON.parse(localStorage.getItem('smart-arqalyq-public-v2'));if(saved){state.safeMode=saved.safeMode===true;state.matches=saved.matches;state.secretStep=Number.isInteger(saved.secretStep)?Math.max(0,Math.min(3,saved.secretStep)):0;state.done=Array.isArray(saved.done)?saved.done.filter(x=>quests.some(q=>q.id===x)):[];state.joined=Array.isArray(saved.joined)?saved.joined.filter(x=>events.some(e=>e.id===x)):[];state.arCollected=Array.isArray(saved.arCollected)?[...new Set(saved.arCollected.filter(id=>quests.some(q=>q.id===id)))]:[];state.robotCaptures=Array.isArray(saved.robotCaptures)?saved.robotCaptures.filter((r,i,all)=>r&&quests.some(q=>q.id===r.questId)&&typeof r.capturedAt==='string'&&Number.isFinite(Date.parse(r.capturedAt))&&all.findIndex(x=>x&&x.questId===r.questId)===i).map(r=>({questId:r.questId,capturedAt:r.capturedAt})):[];state.arCollected=[...new Set([...state.arCollected,...state.robotCaptures.map(r=>r.questId)])];state.done=[...new Set(state.done)];state.points=Number.isFinite(saved.points)&&saved.points>=0?saved.points:0+quests.filter(q=>state.done.includes(q.id)).reduce((sum,q)=>sum+q.xp,0);state.joined=[...new Set(state.joined)];if(typeof saved.name==='string'&&saved.name.trim()){state.name=saved.name.trim().slice(0,50);state.registered=saved.registered===true;}}}catch(e){}
+
+function save(){window.dispatchEvent(new Event('torgai-state-changed'));try{localStorage.setItem('smart-arqalyq-public-v2',JSON.stringify(state));return true;}catch(e){notify('Браузерде сақтау қолжетімсіз. Прогресс осы сессияда сақталады.');return false;}}
+function notify(message){document.querySelector('#toast').textContent=message;clearTimeout(toastTimer);toastTimer=setTimeout(()=>document.querySelector('#toast').textContent='',6000);}
+function render(){updateDashboardAccount();document.querySelector('#profile-name').textContent='Сәлем, '+state.name+'!';document.querySelector('#name-input').value=state.name;const xp=state.points;document.querySelectorAll('.xp').forEach(el=>el.textContent=xp);document.querySelectorAll('.xpbar').forEach(el=>el.style.width=Math.min(xp/500*100,100)+'%');document.querySelector('#done-count').textContent=state.done.length;document.querySelector('#joined-count').textContent=state.joined.length;document.querySelector('#badge').textContent=state.done.length?'Ашылды! Қалаға қосқан алғашқы үлесің.':'Алғашқы квестті орындап, белгі ал.';
+const visible=quests.filter(q=>filter==='all'||q.id===filter);document.querySelector('#quest-count').textContent=visible.length+' квест';document.querySelector('#quest-list').innerHTML=visible.map(q=>{const done=state.done.includes(q.id);return `<article class="card p-4"><div class="flex gap-3"><span class="quest-icon" style="background:${q.bg}">${q.icon}</span><div><p class="text-[9px] font-bold uppercase tracking-widest muted mb-1">${q.category} · ${q.time}</p><h3 class="text-sm font-bold">${q.title}</h3><p class="text-xs muted leading-5 mt-1">${q.description}</p><p class="text-[11px] muted mt-2">⌖ ${q.place}${done?' · ✓ Орындалды':''}</p></div></div><div class="flex justify-between items-center mt-4 pt-3 border-t border-[#eff1ea]"><span class="text-xs font-bold">✦ +${q.xp} XP</span><button class="action" data-gps="${q.id}" aria-haspopup="dialog" ${gpsPending?'disabled':''}>${gpsPending===q.id?'GPS анықталуда…':'Мен осындамын'}</button></div><button class="action w-full mt-3" data-ar="${q.id}" aria-haspopup="dialog">${hasCapturedRobot(q.id)?'🤖 Коллекциядағы роботты көру':'📷 AR-камераны ашу'}</button></article>`}).join('');
+renderSponsored();renderEvents();renderRobotCollection();renderLeaderboard();renderSecret();}
+function cleanupBonus(){return '<p class="cleanup-bonus">Қатысқаны үшін: +50 XP және «Қала қорғаушысы» цифрлық төсбелгісі</p><p class="text-[11px] muted mt-2">Сыйақы нақты қатысу расталған соң беріледі. Тіркелу ұпай қоспайды.</p>';}
+function renderEvents(){
+const visible=events.filter(e=>eventFilter==='all'||e.status===eventFilter);
+document.querySelector('#event-count').textContent=visible.length+' іс-шара';
+document.querySelector('#event-list').innerHTML=visible.map(e=>`<article class="card overflow-hidden ${e.eco?'eco-event':e.featured?'featured-event':''}"><div class="event-banner" style="background:linear-gradient(120deg,${e.color},${e.color}cc)"><span class="text-4xl" aria-hidden="true">${e.icon}</span><span class="event-status">${e.eco?'🌿 Республикалық акция':e.status==='today'?'🔥 Өтіп жатыр':'◷ Алдағы іс-шара'}</span></div><div class="p-5">${e.featured?'<p class="text-xs font-bold mb-2 text-[#aa3425]">БАСТЫ ІС-ШАРА</p>':''}${e.organizer?`<p class="text-[10px] uppercase tracking-widest muted mb-2">${e.organizer} ұйымдастыруымен</p>`:''}<h2 class="font-bold text-lg leading-snug">${e.title}</h2>${e.eco?'<p class="text-xs text-green-700 font-bold mt-2">🌿 Экология</p>':''}<div class="event-date mt-3"><p>◷ <time datetime="${e.iso}">${e.date} · ${e.time}</time></p><p class="mt-1">⌖ ${e.place}</p></div><p class="text-xs leading-5 mt-3 muted">${e.description}</p>${e.eco?cleanupBonus():''}<button class="action w-full mt-4 flex items-center justify-between" data-detail="${e.id}" aria-haspopup="dialog"><span>Толығырақ</span><span aria-hidden="true">↗</span></button></div></article>`).join('');
+}
+function showEvent(id){const e=events.find(item=>item.id===id);if(!e)return;document.querySelector('#event-dialog-content').innerHTML=`<span class="text-4xl block mt-2 mb-4" aria-hidden="true">${e.icon}</span><span class="event-status" style="background:#e7efdb">${e.eco?'🌿 Республикалық акция':e.status==='today'?'🔥 Өтіп жатыр':'◷ Алдағы іс-шара'}</span><h2 id="event-dialog-title" class="text-xl font-bold mt-4 mb-3">${e.title}</h2><p class="event-date"><time datetime="${e.iso}">${e.date} · ${e.time}</time></p><p class="event-date mt-2">⌖ ${e.place}</p>${e.organizer?`<p class="text-xs mt-3 font-semibold">Ұйымдастырушы: ${e.organizer}</p>`:''}<p class="text-sm leading-6 mt-4">${e.description}</p>${e.eco?cleanupBonus()+'<button class="action w-full mt-3" data-cleanup-map>⌖ Жиналу нүктесін картадан көру</button>':''}<button class="action w-full mt-5" data-event="${e.id}">${state.joined.includes(e.id)?'✓ Тіркелдіңіз · Бас тарту':'Қатысамын'}</button><p class="text-[11px] muted mt-3">Қатысу белгісі тек осы браузерде сақталады.</p>`;const dialog=document.querySelector('#event-dialog');if(!dialog.open)dialog.showModal();}
+function toggleEventParticipation(id){
+ if(!events.some(e=>e.id===id))return;
+ state.joined=state.joined.includes(id)?state.joined.filter(x=>x!==id):[...state.joined,id];save();render();renderMatches();
+}
+document.querySelector('#event-dialog-content').addEventListener('click',event=>{const b=event.target.closest('[data-event]');if(b){toggleEventParticipation(b.dataset.event);showEvent(b.dataset.event);}if(event.target.closest('[data-cleanup-map]')){document.querySelector('#event-dialog').close();showCleanupMap();}});
+document.querySelector('#event-filters').addEventListener('click',e=>{const b=e.target.closest('[data-event-filter]');if(!b)return;eventFilter=b.dataset.eventFilter;document.querySelectorAll('[data-event-filter]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',String(x===b));});renderEvents();});
+document.querySelector('#event-list').addEventListener('click',e=>{const b=e.target.closest('[data-detail]');if(b)showEvent(b.dataset.detail);});
+
+function switchTab(id){
+ const aliases={events:'community',match:'community',quests:'activity',leaderboard:'activity',tourism:'assistant'};
+ const target=aliases[id]||id;
+ if(id==='profile'){
+  if(!document.querySelector('.dashboard-module:not([hidden])'))switchTab('map');
+  document.querySelector('#profile').hidden=false;
+  if(!document.querySelector('#profile-dialog').open)document.querySelector('#profile-dialog').showModal();return;
+ }
+ const active=['map','community','activity','assistant'].includes(target)?target:'map';
+ if(document.querySelector('#profile-dialog').open)document.querySelector('#profile-dialog').close();
+ document.querySelectorAll('.dashboard-module').forEach(p=>p.hidden=p.id!=='module-'+active);
+ document.querySelectorAll('.dashboard-module .page').forEach(p=>p.hidden=false);
+ document.querySelectorAll('[data-tab]').forEach(b=>{const on=b.dataset.tab===active;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;});
+ if(location.hash!=='#'+active)history.replaceState(null,'','#'+active);
+ window.scrollTo({top:0,behavior:'instant'});if(active==='map')requestAnimationFrame(initMap);
+ if(id==='tourism')document.querySelector('#tourism-drawer').open=true;
+}
+document.querySelector('.nav').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)switchTab(b.dataset.tab);});
+document.querySelector('.nav').addEventListener('keydown',e=>{const tabs=[...document.querySelectorAll('[data-tab]')];let i=tabs.indexOf(document.activeElement);if(i<0)return;if(e.key==='ArrowRight')i=(i+1)%tabs.length;else if(e.key==='ArrowLeft')i=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')i=0;else if(e.key==='End')i=tabs.length-1;else return;e.preventDefault();switchTab(tabs[i].dataset.tab);tabs[i].focus();});
+document.querySelector('#filters').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',x===b);});render();});
+function checkLocation(id,safetyAcknowledged=false){
+ if(!safetyAcknowledged&&!safetyGate(id,()=>checkLocation(id,true)))return;
+ if(gpsPending)return;
+ const place=locations.find(l=>l.questId===id);if(!place)return;
+ if(!window.isSecureContext){notify('GPS үшін қосымшаны HTTPS немесе localhost арқылы ашыңыз.');return;}
+ if(!navigator.geolocation){notify('Бұл браузер геолокацияны қолдамайды.');return;}
+ gpsPending=id;render();
+ const finish=()=>{gpsPending=null;render();};
+ try{navigator.geolocation.getCurrentPosition(position=>{
+   finish();
+   const {latitude,longitude,accuracy}=position.coords;
+   if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||Math.abs(latitude)>90||Math.abs(longitude)>180){notify('GPS координаталары алынбады. Қайта көріңіз.');return;}
+   const distance=haversineMeters(latitude,longitude,place.lat,place.lng);
+   if(distance>=GPS_RADIUS_METERS){alert('Сіз бұл орынға әлі жеткен жоқсыз. Картаны қарап, жақынырақ барыңыз');return;}
+   notify('Локация расталды!');
+   activeQuestion=id;
+   document.querySelector('#gps-detail').textContent=place.name+' · Қашықтық: '+distance.toFixed(1)+' м'+(Number.isFinite(accuracy)?' · GPS дәлдігі: ±'+Math.round(accuracy)+' м':'');
+   document.querySelector('#ai-question').textContent=place.question;
+   document.querySelector('#ai-feedback').textContent='';
+   document.querySelector('#ai-answer-form').reset();
+   document.querySelector('#ai-submit').disabled=false;
+   document.querySelector('#confetti').replaceChildren();
+   document.querySelector('#ai-dialog').showModal();
+ },error=>{finish();const messages={1:'Геолокацияға рұқсат берілмеді. Браузер баптауларында орналасу рұқсатын қосыңыз.',2:'Орналасқан жеріңіз анықталмады. GPS қызметін қосып, қайта көріңіз.',3:'GPS күту уақыты аяқталды. Ашық жерге шығып, қайта көріңіз.'};notify(messages[error.code]||'GPS қатесі. Қайта көріңіз.');},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+ }catch(error){finish();notify('GPS іске қосылмады. Браузердегі орналасу рұқсатын тексеріңіз.');}
+}
+document.querySelector('#quest-list').addEventListener('click',e=>{const b=e.target.closest('[data-gps]');if(b)checkLocation(b.dataset.gps);});
+document.querySelector('#ai-dialog').addEventListener('close',()=>{activeQuestion=null;});
+// Simple keyword matching, not a remote AI call. Unicode boundaries support Kazakh text.
+function acceptsAnswer(id,answer){
+ const text=answer.normalize('NFKC').toLocaleLowerCase('kk-KZ').replace(/\s+/g,' ').trim();
+ // Demonstration only: real entrance text and board contents have not been supplied.
+ const rules={home:/(сәтті|расталды)/u,culture:/(тарих|мұражай|музей|дала)/u,eco:/[\p{L}]{3,}/u,social:/[\p{L}]{3,}/u};
+ return Boolean(text.length>=10&&rules[id]?.test(text));
+}
+function celebrate(target='#confetti'){
+ const layer=document.querySelector(target);layer.replaceChildren();
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const colors=['#d7fa77','#3bb89b','#f5bf55','#a68aeb','#ee799a'];
+ for(let i=0;i<55;i++){const piece=document.createElement('i');piece.className='confetti-piece';piece.style.left=Math.random()*100+'%';piece.style.background=colors[i%colors.length];piece.style.animationDelay=Math.random()*0.5+'s';piece.style.setProperty('--drift',(Math.random()*160-80)+'px');layer.appendChild(piece);piece.addEventListener('animationend',()=>piece.remove(),{once:true});}
+}
+document.querySelector('#ai-answer-form').addEventListener('submit',e=>{
+ e.preventDefault();if(!activeQuestion)return;
+ const feedback=document.querySelector('#ai-feedback');
+ if(!acceptsAnswer(activeQuestion,document.querySelector('#ai-answer').value)){feedback.textContent='TorgAI: Қате жауап, айналаңызға мұқият қарап, қайта жазыңыз';return;}
+ const alreadyDone=state.done.includes(activeQuestion);
+ if(!alreadyDone){state.done.push(activeQuestion);state.points+=quests.find(q=>q.id===activeQuestion).xp;save();render();}
+ feedback.textContent=alreadyDone?'TorgAI жауапты қабылдады! Бұл квесттің ұпайы бұрын есептелген.':`TorgAI жауапты қабылдады! +${quests.find(q=>q.id===activeQuestion).xp} балл`;
+ document.querySelector('#ai-submit').disabled=true;
+ celebrate();
+});
+document.querySelector('#profile-form').addEventListener('submit',e=>{e.preventDefault();const name=document.querySelector('#name-input').value.trim();if(!name)return;state.name=name.slice(0,50);save();render();notify('Атыңыз сақталды!');});
+document.querySelector('#partner-discount').addEventListener('click',()=>{document.querySelector('#discount-message').textContent='Сіздің ұпайыңыз: '+state.points+' балл. Серіктестердің жеңілдіктері жақында қосылады. Ұпайыңыз сақталады.';});
+const rankingPeople=[{id:'demo-arman',name:'Арман',points:150},{id:'demo-dinara',name:'Динара',points:100},{id:'demo-erlan',name:'Ерлан',points:50},{id:'demo-aigerim',name:'Айгерім',points:30}];
+function renderLeaderboard(){
+ const participants=[...rankingPeople,{id:'self',name:state.name,points:state.points}].sort((a,b)=>b.points-a.points);
+ const list=document.querySelector('#rank-people');list.replaceChildren();
+ participants.forEach((person,index)=>{
+  const row=document.createElement('article');row.className='card rank-row'+(person.id==='self'?' rank-current':'');row.dataset.participant=person.id;
+  row.style.animationDelay=(index*50)+'ms';
+  const medal=document.createElement('span');medal.className='rank-pos';medal.textContent=['🥇','🥈','🥉'][index]||String(index+1);medal.setAttribute('aria-label',(index+1)+'-орын');
+  const info=document.createElement('div');info.className='rank-name';
+  const name=document.createElement('h3');name.className='font-bold text-sm';name.textContent=person.name;
+  if(person.id==='self'){const badge=document.createElement('span');badge.className='rank-you';badge.textContent='Сіз';name.append(badge);}
+  const detail=document.createElement('p');detail.className='text-xs muted mt-1';detail.textContent=(index+1)+'-орын'+(person.id==='self'?'':' · Демо');info.append(name,detail);
+  const score=document.createElement('div');score.className='rank-points';score.textContent=person.points;
+  const unit=document.createElement('span');unit.className='block text-[10px] muted font-normal';unit.textContent='ұпай';score.append(unit);
+  row.append(medal,info,score);list.append(row);
+ });
+ document.querySelector('#rank-self').textContent=state.name+' · '+state.points+' ұпай · '+(participants.findIndex(p=>p.id==='self')+1)+'-орын';
+}
+const welcomeDialog=document.querySelector('#welcome-dialog');
+welcomeDialog.addEventListener('cancel',event=>event.preventDefault());
+document.querySelector('#welcome-name').addEventListener('input',()=>{document.querySelector('#welcome-error').textContent='';});
+document.querySelector('#welcome-form').addEventListener('submit',event=>{
+ event.preventDefault();const input=document.querySelector('#welcome-name'),name=input.value.trim();
+ if(!name){document.querySelector('#welcome-error').textContent='Бастау үшін атыңызды енгізіңіз.';input.focus();return;}
+ state.name=name.slice(0,50);state.registered=true;save();render();welcomeDialog.close();
+ document.querySelector('.nav [aria-selected="true"]')?.focus();
+});
+const rankingSchools=[['АрқПУ',2500],['№4 ЖББМ',1800],['№1 гимназия',1200]];
+function rankRows(items){return items.map(([name,points],i)=>`<article class="card rank-row" style="animation-delay:${i*65}ms"><span class="rank-pos">${['🏆','🥈','🥉'][i]||i+1}</span><div class="rank-name"><h3 class="font-bold text-sm">${name}</h3><p class="text-xs muted mt-1">${i+1}-орын</p></div><div class="rank-points">${points}<span class="block text-[10px] muted font-normal">ұпай</span></div></article>`).join('');}
+document.querySelector('#rank-schools').innerHTML=rankRows(rankingSchools);
+function selectRank(id){document.querySelectorAll('[data-rank]').forEach(b=>{const active=b.dataset.rank===id;b.setAttribute('aria-selected',active);b.tabIndex=active?0:-1;b.classList.toggle('active',active);document.querySelector('#rank-'+b.dataset.rank).hidden=!active;});}
+document.querySelector('#rank-tabs').addEventListener('click',e=>{const b=e.target.closest('[data-rank]');if(b)selectRank(b.dataset.rank);});
+document.querySelector('#rank-tabs').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const id=e.key==='Home'?'people':e.key==='End'?'schools':document.activeElement.dataset.rank==='people'?'schools':'people';selectRank(id);document.querySelector('#rank-tab-'+id).focus();});
+let arQuest=null,arSession=0,arTimer=null,arLoadTimer=null,arReady=false;
+function stopAR(){resetRobotCapture();arSession++;clearTimeout(arTimer);clearTimeout(arLoadTimer);arReady=false;arQuest=null;const viewer=document.querySelector('#ar-viewer-host model-viewer');if(viewer&&typeof viewer.pause==='function')viewer.pause();document.querySelector('#ar-viewer-host').replaceChildren();document.querySelector('#ar-reward').disabled=true;document.querySelector('#ar-confetti').replaceChildren();}
+function closeAR(){stopAR();const dialog=document.querySelector('#ar-dialog');if(dialog.open)dialog.close();}
+function openAR(id,safetyAcknowledged=false){
+ if(!hasCapturedRobot(id)&&!safetyAcknowledged&&!safetyGate(id,()=>openAR(id,true)))return;
+ if(!quests.some(q=>q.id===id))return;
+ stopAR();const token=arSession;arQuest=id;const dialog=document.querySelector('#ar-dialog'),status=document.querySelector('#ar-status');document.querySelector('#ar-retry').hidden=true;status.textContent='3D робот жүктелуде…';if(!dialog.open)dialog.showModal();
+ const viewer=document.createElement('model-viewer');viewer.setAttribute('src','https://modelviewer.dev/shared-assets/models/RobotExpressive.glb');viewer.setAttribute('alt','Қол бұлғап тұрған 3D робот');viewer.setAttribute('ar','');viewer.setAttribute('ar-modes','webxr scene-viewer quick-look');viewer.setAttribute('camera-controls','');viewer.setAttribute('auto-rotate','');viewer.setAttribute('autoplay','');viewer.setAttribute('animation-name','Wave');viewer.setAttribute('shadow-intensity','1');viewer.setAttribute('loading','eager');
+ const arButton=document.createElement('button');arButton.className='action model-ar-button';arButton.slot='ar-button';arButton.textContent='📷 Кеңістікте көру';viewer.appendChild(arButton);
+ const fail=()=>{if(token!==arSession)return;clearTimeout(arLoadTimer);arReady=false;document.querySelector('#ar-reward').disabled=true;status.textContent='3D робот жүктелмеді. Интернетті тексеріп, қайта жүктеңіз.';document.querySelector('#ar-retry').hidden=false;};
+ viewer.addEventListener('load',()=>{if(token!==arSession)return;clearTimeout(arLoadTimer);arReady=true;document.querySelector('#ar-retry').hidden=true;prepareRobotCapture();});
+ viewer.addEventListener('error',fail);
+ viewer.addEventListener('ar-status',e=>{if(token!==arSession)return;if(e.detail.status==='failed')status.textContent='AR іске қосылмады. 3D роботты осы терезеде көруге болады.';else if(e.detail.status==='session-started')status.textContent='Жазық бетті табу үшін телефонды баяу қозғалтыңыз.';else if(e.detail.status==='not-presenting'&&arReady&&!robotCaptureBusy&&!hasCapturedRobot(arQuest))prepareRobotCapture();});
+ arLoadTimer=setTimeout(fail,45000);document.querySelector('#ar-viewer-host').appendChild(viewer);
+}
+document.querySelector('#quest-list').addEventListener('click',e=>{const b=e.target.closest('[data-ar]');if(b)openAR(b.dataset.ar);});
+document.querySelector('#ar-close').onclick=closeAR;
+document.querySelector('#ar-dialog').addEventListener('cancel',e=>{e.preventDefault();closeAR();});
+document.querySelector('#ar-dialog').addEventListener('close',stopAR);
+// Keep the dialog when Scene Viewer / Quick Look temporarily takes over the screen.
+window.addEventListener('pagehide',closeAR);
+document.querySelector('#ar-retry').onclick=()=>{if(arQuest)openAR(arQuest);};
+document.querySelector('#ar-reward').addEventListener('click',captureRobot);
+let sponsoredQuests=[];
+try{const saved=JSON.parse(localStorage.getItem('smart-arqalyq-sponsored-v1'));if(Array.isArray(saved))sponsoredQuests=saved.filter(q=>typeof q.title==='string'&&q.title.trim()&&q.title.length<=120&&Number.isInteger(q.points)&&q.points>0&&q.points<=10000).slice(0,100);}catch(e){}
+function renderSponsored(){
+ if(filter!=='all')return;
+ const fragment=document.createDocumentFragment();
+ sponsoredQuests.forEach(q=>{const card=document.createElement('article');card.className='card sponsored-card p-4';const badge=document.createElement('span');badge.className='sponsor-badge';badge.textContent='💎 Демеушілік квест';const title=document.createElement('h3');title.className='font-bold mt-3';title.textContent=q.title;const points=document.createElement('p');points.className='text-sm font-bold mt-3';points.textContent='✦ '+q.points+' ұпай';const note=document.createElement('p');note.className='text-xs muted mt-2';note.textContent='Демо ұсыныс · қатысу шарттары мен локациясын серіктес нақтылайды.';card.append(badge,title,points,note);fragment.appendChild(card);});
+ document.querySelector('#quest-list').prepend(fragment);document.querySelector('#quest-count').textContent=(quests.length+sponsoredQuests.length)+' квест';
+}
+document.querySelector('#business-open').onclick=()=>{document.querySelector('#business-feedback').textContent='';document.querySelector('#business-dialog').showModal();};
+document.querySelector('#business-form').addEventListener('submit',e=>{e.preventDefault();const title=document.querySelector('#business-name').value.trim(),points=Number(document.querySelector('#business-points').value);if(!title||title.length>120||!Number.isInteger(points)||points<1||points>10000){document.querySelector('#business-feedback').textContent='Атау мен 1–10000 аралығындағы бүтін ұпай санын енгізіңіз.';return;}if(sponsoredQuests.length>=100){document.querySelector('#business-feedback').textContent='Демо тізімде ең көбі 100 квест сақталады.';return;}sponsoredQuests.unshift({title,points});try{localStorage.setItem('smart-arqalyq-sponsored-v1',JSON.stringify(sponsoredQuests));}catch(e){notify('Квест қосылды, бірақ браузерде сақтау қолжетімсіз.');}document.querySelector('#business-form').reset();document.querySelector('#business-dialog').close();document.querySelector('[data-filter="all"]').click();switchTab('quests');});
+// First matching category wins: water emergency, cleanliness, infrastructure, general.
+function classifyReport(description){
+ const text=description.normalize('NFKC').toLocaleLowerCase('kk-KZ');
+ // Unicode word starts prevent «су» matching the middle of unrelated words such as «қатысу».
+ if(/(?:^|[^\p{L}\p{N}])(?:су(?:дың|ға|ды|дан|мен|лар\p{L}*)?|құбыр\p{L}*|жарылды|ағып)(?=$|[^\p{L}\p{N}])/u.test(text))return {level:'red',label:'🔴 Шұғыл · Қызыл деңгей',message:'🤖 TorgAI Диспетчер: Мәселе шұғыл (Қызыл деңгей) деп бағаланды және автоматты түрде «Арқалық Су Арнасы» мекемесіне бағытталды!'};
+ if(/(?:^|[^\p{L}\p{N}])(?:қоқыс|ластанған|жапырақ|тазалық)\p{L}*/u.test(text))return {level:'yellow',label:'🟡 Тазалық · Сары деңгей',message:'🤖 TorgAI Диспетчер: Санат — Тазалық (Сары деңгей). «Абаттандыру бөліміне» жіберілді!'};
+ if(/(?:^|[^\p{L}\p{N}])(?:жарық|шам|қараңғы)\p{L}*/u.test(text))return {level:'blue',label:'🔵 Инфрақұрылым',message:'🤖 TorgAI Диспетчер: Санат — Инфрақұрылым. «Арқалық Электр Желілері» мекемесіне хабарланды!'};
+ return {level:'green',label:'🟢 Жалпы өтініш · 109',message:'🤖 TorgAI Диспетчер: Өтініш қабылданды және Жалпы қалалық байланыс орталығына (109) жіберілді!'};
+}
+function showDispatchResult(result,latitude,longitude){
+ document.querySelector('#dispatch-level').className='dispatch-level '+result.level;document.querySelector('#dispatch-level').textContent=result.label;document.querySelector('#dispatch-message').textContent=result.message;document.querySelector('#dispatch-gps').textContent='GPS: '+latitude.toFixed(6)+', '+longitude.toFixed(6);
+ document.querySelector('#report-dialog').close();document.querySelector('#dispatch-dialog').showModal();
+}
+let reportBusy=false,reportToken=0,reportSubmitted=false;
+document.querySelector('#report-open').onclick=()=>{if(!reportBusy){reportSubmitted=false;document.querySelector('#report-form').reset();document.querySelector('#report-send').disabled=false;document.querySelector('#report-send').textContent='Жіберу';document.querySelector('#photo-status').textContent='Фото әлі қосылмаған';document.querySelector('#report-feedback').textContent='';}switchTab('assistant');selectAssistant('report');};
+document.querySelector('#report-photo').onclick=()=>{document.querySelector('#photo-status').textContent='✓ Фото қосылды (имитация)';};
+document.querySelector('#report-dialog').addEventListener('close',()=>{reportToken++;reportBusy=false;});
+document.querySelector('#report-form').addEventListener('submit',e=>{
+ e.preventDefault();if(reportBusy||reportSubmitted)return;
+ const feedback=document.querySelector('#report-feedback'),button=document.querySelector('#report-send');
+ if(document.querySelector('#report-description').value.trim().length<5){feedback.textContent='Мәселені кемінде 5 таңбамен сипаттаңыз.';return;}
+ if(!window.isSecureContext||!navigator.geolocation){feedback.textContent='GPS үшін HTTPS немесе localhost арқылы ашыңыз.';return;}
+ const classification=classifyReport(document.querySelector('#report-description').value);reportBusy=true;const token=++reportToken;button.disabled=true;button.textContent='GPS анықталуда…';feedback.textContent='Орналасқан жеріңізге рұқсат беріңіз.';
+ const fail=message=>{if(token!==reportToken)return;reportBusy=false;button.disabled=false;button.textContent='Жіберу';feedback.textContent=message;};
+ try{navigator.geolocation.getCurrentPosition(position=>{
+  if(token!==reportToken)return;const {latitude,longitude}=position.coords;
+  if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||Math.abs(latitude)>90||Math.abs(longitude)>180){fail('GPS координаталары алынбады. Қайта көріңіз.');return;}
+  reportBusy=false;reportSubmitted=true;state.points+=20;save();render();button.textContent='✓ Демо жіберу аяқталды';
+  showDispatchResult(classification,latitude,longitude);
+ },error=>fail(({1:'GPS рұқсаты берілмеді. Браузер баптауларынан рұқсат беріңіз.',2:'Орныңыз анықталмады. Қайта көріңіз.',3:'GPS күту уақыты аяқталды. Қайта көріңіз.'})[error.code]||'GPS қатесі.'),{enableHighAccuracy:true,maximumAge:0,timeout:15000});}catch(e){fail('GPS қызметі іске қосылмады.');}
+});
+const tourCategories=[['history','🏛️ Тарихи орындар'],['fun','🎠 Көңіл көтеру мен демалыс'],['food','🍽️ Гастрономия'],['eco','🌾 Қала сыртындағы саяхат']];
+const tourPlaces=[
+{id:'museum',cat:'history',title:'Дала өлкесі тарихы мұражайы',icon:'🏛️',color:'#dbbb8e',description:'Өлке тарихы мен мәдени мұрасымен танысыңыз.',locationId:'culture',price:'Тегін/ақылы: нақтыланады'},
+{id:'torgai',cat:'history',title:'Торғай мұражайлар кешені',icon:'🏺',color:'#dfb3a0',description:'Торғай өңірінің тарихына арналған сапар. Қала сыртындағы бағыт.',price:'Тегін/ақылы: нақтыланады'},
+{id:'horse',cat:'fun',title:'Арқалық Ипподромы',icon:'🐎',color:'#cfdbaf',description:'Ат жарысы мен ұлттық ойындар. Бармас бұрын іс-шара кестесін нақтылаңыз.',price:'Іс-шараға байланысты'},
+{id:'park',cat:'fun',title:'Орталық саябақ',icon:'🌳',color:'#b8d4a5',description:'Қала ішіндегі серуен және тынығу бағыты.',locationId:'eco',price:'Кіру бағасы нақтыланады'},
+{id:'youth',cat:'fun',title:'Жалын жастар орталығы',icon:'🔥',color:'#eac1ad',description:'Жастар іс-шаралары және Arqalyq AI Hackathon.',locationId:'social',price:'Іс-шараға байланысты'},
+{id:'cafes',cat:'food',title:'Жергілікті дәмханалар',icon:'☕',color:'#e8c9a8',description:'Кофе мен түскі ас орындары. Нақты мекемелер тізімі әзірленуде.',price:'Ақылы · мәзір бойынша'},
+{id:'national',cat:'food',title:'Ұлттық тағамдар',icon:'🍲',color:'#eac89d',description:'Ұлттық тағам ұсынатын орындар. Мекеме мен мәзірді нақтылау қажет.',price:'Ақылы · мәзір бойынша'},
+{id:'market',cat:'food',title:'Ет пен саумал нүктелері',icon:'🥛',color:'#d4d7bc',description:'Жергілікті өнімдер бағыты. Сатушының орны мен жұмыс уақытын нақтылаңыз.',price:'Ақылы · сатушы бағасы'},
+{id:'amangeldi',cat:'eco',title:'Амангелді ауылындағы тарихи орындар',icon:'🗿',color:'#d4c29d',description:'Тарихи-мәдени сапар идеясы. Маршрут пен нысандарды алдын ала нақтылау қажет.',price:'Сапар құны нақтыланады'},
+{id:'steppe',cat:'eco',title:'Торғай даласы · Киіктерді тамашалау',icon:'🦌',color:'#ced8a8',description:'Табиғатты қашықтан бақылау бағыты. Нақты орын, рұқсат және гидпен сапар шарттары нақтыланады.',price:'Тур құны нақтыланады'},
+{id:'springs',cat:'eco',title:'Ыстық бұлақтар',icon:'♨️',color:'#a8d4d4',description:'Сапар идеясы: Арқалық маңындағы нақты нысан мен оның қолжетімділігі расталмаған.',price:'Нақты нысан таңдалмаған'}];
+let tourCategory='history',tourMarker=null;
+function renderTourism(){const query=document.querySelector('#tour-search').value.trim().toLocaleLowerCase('kk-KZ');const list=tourPlaces.filter(p=>(query||p.cat===tourCategory)&&(!query||(p.title+' '+p.description).toLocaleLowerCase('kk-KZ').includes(query)));document.querySelectorAll('[data-tour-cat]').forEach(b=>{b.classList.toggle('active',!query&&b.dataset.tourCat===tourCategory);b.setAttribute('aria-pressed',!query&&b.dataset.tourCat===tourCategory);});document.querySelector('#tour-count').textContent=query?'Барлық санаттан: '+list.length+' нысан':list.length+' нысан';document.querySelector('#tour-list').innerHTML=list.length?list.map(p=>`<article class="card overflow-hidden"><div class="tour-art" style="--tour-color:${p.color}" role="img" aria-label="${p.title}: иллюстрация"><span aria-hidden="true">${p.icon}</span><small>Иллюстрациялық үлгі</small></div><div class="p-4"><h2 class="font-bold text-lg">${p.title}</h2><p class="text-xs muted leading-5 mt-2">${p.description}</p><p class="text-xs font-semibold mt-3">${p.price}</p><button class="action w-full mt-4" data-tour-map="${p.id}">Картадан қарау →</button>${p.locationId?'':'<p class="text-[10px] muted mt-2">Нақты координата әзірше жоқ</p>'}</div></article>`).join(''):'<p class="card p-5 muted">Нысан табылмады. Басқа сөзбен іздеп көріңіз.</p>';}
+document.querySelector('#tour-categories').innerHTML=tourCategories.map(([id,title])=>`<button class="pill" data-tour-cat="${id}" aria-pressed="false">${title}</button>`).join('');
+document.querySelector('#tourism-open').onclick=()=>switchTab('tourism');
+document.querySelector('#tour-search').addEventListener('input',renderTourism);
+document.querySelector('#tour-categories').addEventListener('click',e=>{const b=e.target.closest('[data-tour-cat]');if(!b)return;tourCategory=b.dataset.tourCat;document.querySelector('#tour-search').value='';renderTourism();});
+document.querySelector('#tour-list').addEventListener('click',e=>{const b=e.target.closest('[data-tour-map]');if(!b)return;const place=tourPlaces.find(p=>p.id===b.dataset.tourMap);const location=locations.find(l=>l.questId===place.locationId);switchTab('map');requestAnimationFrame(()=>{initMap();if(tourMarker&&cityMap){cityMap.removeLayer(tourMarker);tourMarker=null;}if(!location){document.querySelector('#place-detail').textContent=place.title+': нақты координата расталмаған. Дәл маркер қою үшін мекенжайы қажет.';notify('Нақты орналасу орны әлі нақтыланбаған.');return;}if(!cityMap)return;cityMap.setView([location.lat,location.lng],16);const label=document.createElement('strong');label.textContent=place.title;tourMarker=L.marker([location.lat,location.lng],{title:place.title}).addTo(cityMap).bindPopup(label).openPopup();document.querySelector('#place-detail').textContent=place.title+' · '+location.lat+', '+location.lng;});});
+document.querySelector('#guide-open').onclick=()=>{switchTab('assistant');selectAssistant('guide');};
+document.querySelector('#guide-form').addEventListener('submit',e=>{e.preventDefault();const input=document.querySelector('#guide-input'),query=input.value.trim();if(!query)return;const chat=document.querySelector('#guide-chat'),user=document.createElement('p');user.className='guide-user';user.textContent=query;chat.appendChild(user);const text=query.toLocaleLowerCase('kk-KZ');const answer=document.createElement('p');answer.className='guide-reply';answer.textContent=/(автобус|көлік|маршрут|такси)/u.test(text)?'Қалалық көліктің расталған кестесі мен нақты уақыттағы деректері әзірше қосылмаған. Бағыт нөмірі мен жүру уақытын тасымалдаушыдан нақтылаңыз.':/(тарих|мұражай|музей)/u.test(text)?'Қалада Дала өлкесі тарихы мұражайынан бастаңыз. «Тарихи орындар» карточкасынан картаға өтуге болады. Торғай кешенінің нақты мекенжайы мен қабылдау уақытын алдын ала нақтылаңыз.':/(тамақ|кафе|дәм|ет|саумал)/u.test(text)?'«Гастрономия» санатында дәмхана, ұлттық тағам және жергілікті өнім бағыттары бар. Нақты мекемелер мен бағалар әлі нақтылануда.':/(табиғат|дала|киік|бұлақ|эко)/u.test(text)?'«Қала сыртындағы саяхат» санатын қараңыз. Бұл әзірше сапар идеялары: маршрут, рұқсаттар және гидтің қолжетімділігі нақтыланбаған.':/(саябақ|демал|бала|хакатон|жастар)/u.test(text)?'Орталық саябақта серуендеуді немесе «Жалын» жастар орталығын қараңыз. Екі орынның да карта нүктесі бар.':'Тарих, демалыс, гастрономия немесе табиғат — қайсысы қызықтырады? Мен осы каталогтағы бағыттарды табуға көмектесемін.';chat.appendChild(answer);while(chat.children.length>21)chat.removeChild(chat.firstChild);input.value='';chat.scrollTop=chat.scrollHeight;});
+renderTourism();
+const cityQuestMarkers={};
+let cleanupMarker=null;
+let cityMap=null,userMarker=null,accuracyCircle=null,locationWatch=null;
+function initMap(){
+ if(!window.L){document.querySelector('#map-gps-status').textContent='Карта жүктелмеді. Интернет байланысын тексеріп, бетті жаңартыңыз.';return;}
+ if(!cityMap){
+  cityMap=L.map('real-map').setView([50.252000,66.909000],15);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).on('tileerror',()=>{document.querySelector('#map-load-status').textContent='Карта қабаты жүктелмеді. Интернет байланысын тексеріп, бетті жаңартыңыз.';}).addTo(cityMap);
+  // Nauryz Square coordinates supplied by the user.
+  const ecoIcon=L.divIcon({className:'',html:'<div class="map-pin cleanup-pin"><span>🌿</span></div>',iconSize:[34,42],iconAnchor:[17,40],popupAnchor:[0,-38]});
+  const ecoPopup=document.createElement('div');ecoPopup.innerHTML='<strong>«Таза Қазақстан» жалпықалалық экологиялық акциясы</strong><p>10.10.2026, 09:00</p><p>⌖ Наурыз алаңы · Жиналу нүктесі</p>';
+  const ecoDetails=document.createElement('button');ecoDetails.className='action';ecoDetails.textContent='Толығырақ';ecoDetails.onclick=()=>showEvent('taza');ecoPopup.append(ecoDetails);
+  cleanupMarker=L.marker([50.250695,66.91326],{icon:ecoIcon,title:'Наурыз алаңы · Таза Қазақстан',alt:'Таза Қазақстан жиналу нүктесі'}).addTo(cityMap).bindPopup(ecoPopup);
+  locations.forEach(place=>{
+   const related=events.filter(event=>event.locationId===place.questId);
+   const popup=document.createElement('div');
+   const heading=document.createElement('strong');heading.textContent=place.questId==='social'?'Жалын жастар орталығы - Мұнда Хакатон өтіп жатыр!':place.name;popup.appendChild(heading);
+   const note=document.createElement('p');note.textContent=place.questId==='home'?'Жеке GPS тест нүктесі':'Квест локациясы';popup.appendChild(note);
+   const questButton=document.createElement('button');questButton.className='action';questButton.textContent='Квестті ашу →';questButton.onclick=()=>{filter=place.questId==='home'?'all':place.questId;document.querySelector(`[data-filter="${filter}"]`).click();switchTab('quests');};popup.appendChild(questButton);
+   if(['culture','eco','social'].includes(place.questId)){const demo=document.createElement('button');demo.className='action';demo.textContent='🧩 Код бөлігін алу · демо';demo.onclick=()=>collectSecret(place.questId);popup.appendChild(demo);}
+   related.forEach(event=>{const button=document.createElement('button');button.className='action';button.textContent=event.title+' · '+event.date+' · '+event.time;button.onclick=()=>showEvent(event.id);popup.appendChild(button);});
+   const icon=L.divIcon({className:'',html:'<div class="map-pin '+(place.questId==='social'?'hackathon-pin':related.length?'event-pin':'')+'"><span>'+(place.questId==='social'?'🔥':related.length?'✦':'⌖')+'</span></div>',iconSize:[34,42],iconAnchor:[17,40],popupAnchor:[0,-38]});
+   cityQuestMarkers[place.questId]=L.marker([place.lat,place.lng],{icon,title:place.name,alt:place.name}).addTo(cityMap).bindPopup(popup,{maxWidth:200,autoPanPadding:[35,35],keepInView:true}).on('click',()=>{document.querySelector('#place-detail').textContent=place.name+' · '+(related.length?'Квест және '+related.length+' іс-шара':'Квест нүктесі');});
+  });
+
+ }
+ cityMap.invalidateSize();syncSafetyMap();applyMapFilter();
+}
+function showCleanupMap(){selectMapFilter('all');switchTab('map');requestAnimationFrame(()=>{initMap();if(cleanupMarker){cityMap.setView([50.250695,66.91326],16);cleanupMarker.openPopup();}});}
+function stopLocationWatch(){if(locationWatch!==null){navigator.geolocation.clearWatch(locationWatch);locationWatch=null;}document.querySelector('#locate-me').textContent='⌖ Менің орным';}
+document.querySelector('#locate-me').addEventListener('click',()=>{
+ if(locationWatch!==null){stopLocationWatch();document.querySelector('#map-gps-status').textContent='Орналасуды жаңарту тоқтатылды. Картада соңғы орын көрсетілген.';return;}
+ initMap();if(!cityMap)return;
+ const status=document.querySelector('#map-gps-status');
+ if(!window.isSecureContext||!navigator.geolocation){status.textContent='GPS үшін HTTPS немесе localhost арқылы ашып, геолокацияны қолдайтын браузерді пайдаланыңыз.';return;}
+ status.textContent='Орныңыз анықталуда…';let firstFix=true;
+ document.querySelector('#locate-me').textContent='Орналасуды жаңартуды тоқтату';
+ locationWatch=navigator.geolocation.watchPosition(position=>{
+  const {latitude,longitude,accuracy}=position.coords;
+  if(!Number.isFinite(latitude)||!Number.isFinite(longitude))return;
+  const point=[latitude,longitude];
+  if(!userMarker){userMarker=L.circleMarker(point,{radius:9,color:'#fff',weight:3,fillColor:'#2563eb',fillOpacity:1}).addTo(cityMap).bindPopup('Сіздің орныңыз');accuracyCircle=L.circle(point,{radius:accuracy,color:'#2563eb',weight:1,fillOpacity:0.12}).addTo(cityMap);}
+  else{userMarker.setLatLng(point);accuracyCircle.setLatLng(point).setRadius(accuracy);}
+  if(firstFix){cityMap.fitBounds(accuracyCircle.getBounds(),{maxZoom:17,padding:[25,25]});firstFix=false;}
+  status.textContent='Сіздің орныңыз: '+latitude.toFixed(5)+', '+longitude.toFixed(5)+' · GPS дәлдігі: ±'+Math.round(accuracy)+' м. '+(accuracy>50?'Дәлдік төмен: ашық жерге жақындап көріңіз.':'Орналасу автоматты жаңартылады.');
+ },error=>{stopLocationWatch();status.textContent=({1:'Орналасуға рұқсат берілмеді. Браузер баптауларында рұқсатты қосыңыз.',2:'Орналасу анықталмады. GPS қызметін тексеріп, қайта көріңіз.',3:'GPS күту уақыты аяқталды. Қайта көріңіз.'})[error.code]||'GPS қатесі. Қайта көріңіз.';},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+});
+window.addEventListener('pagehide',stopLocationWatch);
+const secretStops=['culture','eco','social'];
+const secretNames=['Мұражай','Орталық саябақ','Жалын жастар орталығы'];
+let secretRoute=null;
+function renderSecret(){
+ const step=state.secretStep;
+ document.querySelector('#secret-progress').textContent=step===3?'✓ 3/3 · ARQ-2026 · Алтын робот ашылды!':step+'/3 · '+['•••-••-••','ARQ-••-••','ARQ-20-••'][step]+' · Келесі: '+secretNames[step];
+ document.querySelector('#secret-collect').disabled=step===3;
+ document.querySelector('#secret-collect').textContent=step===3?'✓ Код жиналды':'Код бөлігін алу · демо';
+ document.querySelector('#secret-show').textContent=step===3?'Маршрутты көру':'Картадан '+(step===0?'бастау':'жалғастыру')+' →';
+ document.querySelector('#secret-trophy').hidden=step!==3;
+}
+function showSecret(){
+ selectMapFilter('all');initMap();if(!cityMap)return;
+ const points=secretStops.map(id=>locations.find(p=>p.questId===id)).map(p=>[p.lat,p.lng]);
+ if(!secretRoute)secretRoute=L.polyline(points,{color:'#b58b19',weight:4,dashArray:'8 9'}).addTo(cityMap);
+ cityMap.fitBounds(secretRoute.getBounds(),{padding:[45,45],maxZoom:15});
+ if(state.secretStep<3)cityQuestMarkers[secretStops[state.secretStep]]?.openPopup();
+}
+function collectSecret(id){
+ if(state.secretStep===3){notify('Алтын робот профильде сақталған!');return;}
+ if(id!==secretStops[state.secretStep]){notify('Алдымен '+secretNames[state.secretStep]+' аялдамасының кодын алыңыз.');return;}
+ state.secretStep++;save();renderSecret();
+ if(state.secretStep===3){cityMap?.closePopup();document.querySelector('#secret-dialog').showModal();celebrate('#secret-confetti');}
+ else{notify('Код бөлігі табылды! Келесі аялдама: '+secretNames[state.secretStep]);showSecret();}
+}
+document.querySelector('#secret-show').onclick=showSecret;
+document.querySelector('#secret-collect').onclick=()=>collectSecret(secretStops[state.secretStep]);
+document.querySelector('#secret-profile').onclick=()=>{document.querySelector('#secret-dialog').close();switchTab('profile');document.querySelector('#secret-trophy').scrollIntoView({block:'center'});};
+const matchCategories={'Спорт':'⚽','Киберспорт':'🎮','Үстел ойындары':'♟️','IT/Оқу':'💻','Шығармашылық':'🎨','Еріктілік':'🌿'};
+function matchDate(days,hour){const d=new Date();d.setDate(d.getDate()+days);d.setHours(hour,0,0,0);return d.toISOString();}
+function validMeet(m){return m&&typeof m.id==='string'&&typeof m.title==='string'&&m.title.trim()&&m.title.length<=100&&Object.hasOwn(matchCategories,m.category)&&typeof m.description==='string'&&m.description.length<=700&&typeof m.place==='string'&&m.place.trim()&&m.place.length<=120&&typeof m.when==='string'&&Number.isFinite(Date.parse(m.when))&&Number.isInteger(m.capacity)&&m.capacity>=2&&m.capacity<=100&&Number.isInteger(m.baseCount)&&m.baseCount>=1&&m.baseCount<=m.capacity;}
+if(Array.isArray(state.matches)){state.matches=state.matches.filter(validMeet).slice(0,100).map(m=>({...m,joined:m.joined===true&&m.baseCount<m.capacity,mine:m.mine===true}));}
+else state.matches=[
+ {id:'demo-volley',title:'Кешкі 19:00-де волейболға 2 адам керек',category:'Спорт',description:'Достық ойын! Тәжірибе маңызды емес, ыңғайлы аяқ киіммен келіңіз.',place:'Орталық саябақ',when:matchDate(1,19),capacity:8,baseCount:6},
+ {id:'demo-fifa',title:'FIFA 24 бойынша шағын турнир',category:'Киберспорт',description:'Қысқа матчтар, жаңа таныстар және жақсы көңіл күй.',place:'Жалын жастар орталығы',when:matchDate(2,18),capacity:8,baseCount:3},
+ {id:'demo-it',title:'AI идеялар кеші: бірге жоба ойлап табайық',category:'IT/Оқу',description:'Бағдарламалау білмесеңіз де келіңіз. Әр идея маңызды!',place:'Жалын жастар орталығы',when:matchDate(3,17),capacity:10,baseCount:4}
+];
+function renderCleanupInvite(list){
+ const joined=state.joined.includes('taza'),card=document.createElement('article');card.className='card eco-event p-5';card.id='cleanup-invite';
+ card.innerHTML='<p class="text-xs font-bold text-green-700">📌 Бекітілген · Ресми шақыру</p><span class="match-verified mt-2">🌿 Республикалық акция</span><h3 class="font-bold text-lg mt-3">Наурыз алаңына сенбілікке жиналамыз! Барлығымыз бірге қаламызды жайнатайық!</h3><p class="text-xs muted mt-3">10.10.2026 · 09:00 · Наурыз алаңы</p>'+cleanupBonus()+'<p class="text-sm font-bold mt-4">Тіркелгендер: '+(joined?1:0)+' адам <span class="text-xs muted font-normal">(осы браузерде)</span></p><p class="text-[11px] muted mt-2">Жалпы қалалық қатысушылар саны сервер қосылғанда көрсетіледі.</p>';
+ const join=document.createElement('button');join.className='action w-full mt-3';join.id='cleanup-join';join.textContent=joined?'✓ Қатысамын · Бас тарту':'Қатысамын';join.onclick=()=>toggleEventParticipation('taza');
+ const map=document.createElement('button');map.className='pill w-full mt-2';map.textContent='⌖ Жиналу нүктесі';map.onclick=showCleanupMap;card.append(join,map);list.append(card);
+}
+function renderMatches(){
+ const list=document.querySelector('#match-list');list.replaceChildren();renderCleanupInvite(list);const active=state.matches.filter(m=>Date.parse(m.when)>Date.now());document.querySelector('#match-count').textContent=(active.length+1)+' жиын';
+ if(!active.length){const p=document.createElement('p');p.className='card p-5 muted';p.textContent='Әзірге белсенді жиын жоқ. Алғашқысын өзіңіз құрыңыз!';list.append(p);}
+ active.forEach(m=>{
+  const card=document.createElement('article');card.className='card p-5';const top=document.createElement('div');top.className='flex flex-wrap justify-between gap-2 items-center';
+  const tag=document.createElement('span');tag.className='text-xs font-bold';tag.textContent=matchCategories[m.category]+' '+m.category;
+  const verified=document.createElement('span');verified.className='match-verified';verified.textContent='🛡️ TorgAI Verified · Демо';top.append(tag,verified);
+  const title=document.createElement('h3');title.className='font-bold text-lg mt-3';title.textContent=m.title;
+  const desc=document.createElement('p');desc.className='match-description text-sm muted mt-2';desc.textContent=m.description;
+  const place=document.createElement('p');place.className='text-xs mt-4';place.textContent='⌖ '+m.place;
+  const time=document.createElement('p');time.className='text-xs muted mt-2';time.textContent='◷ '+new Date(m.when).toLocaleString('kk-KZ',{day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'});
+  const count=m.baseCount+(m.joined?1:0),people=document.createElement('p');people.className='text-sm font-bold mt-4';people.textContent='Қатысушылар: '+count+'/'+m.capacity+' адам';
+  const button=document.createElement('button');button.className='action w-full mt-3';button.dataset.matchJoin=m.id;button.disabled=m.mine||(!m.joined&&count>=m.capacity);button.textContent=m.mine?'✓ Сіз ұйымдастырушысыз':m.joined?'✓ Қосылдыңыз · Бас тарту':count>=m.capacity?'Орын толды':'Қосыламын →';
+  card.append(top,title,desc,place,time,people,button);list.append(card);
+ });
+}
+document.querySelector('#match-open').onclick=()=>{switchTab('match');renderMatches();};
+document.querySelector('#match-list').onclick=e=>{const button=e.target.closest('[data-match-join]');if(!button)return;const m=state.matches.find(m=>m.id===button.dataset.matchJoin);if(!m||m.mine||Date.parse(m.when)<=Date.now()||(!m.joined&&m.baseCount>=m.capacity))return;m.joined=!m.joined;save();renderMatches();notify(m.joined?'Қатысу белгісі сақталды!':'Қатысудан бас тарттыңыз.');};
+let matchTimers=[],matchBusy=false;
+const matchDialog=document.querySelector('#match-dialog'),matchForm=document.querySelector('#match-form');
+function cancelMatch(){matchTimers.forEach(clearTimeout);matchTimers=[];matchBusy=false;document.querySelector('#match-publish').disabled=false;}
+document.querySelector('#match-close').onclick=()=>{cancelMatch();matchDialog.close();};matchDialog.addEventListener('cancel',cancelMatch);matchDialog.addEventListener('close',cancelMatch);
+document.querySelector('#match-create').onclick=()=>{cancelMatch();matchForm.reset();matchForm.hidden=false;document.querySelector('#match-scan').hidden=true;document.querySelector('#match-error').textContent='';const d=new Date(Date.now()+60000);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());matchForm.elements.when.min=d.toISOString().slice(0,16);matchDialog.showModal();};
+matchForm.addEventListener('submit',e=>{
+ e.preventDefault();if(matchBusy)return;
+ const values=new FormData(matchForm);const title=values.get('title').trim(),description=values.get('description').trim(),place=values.get('place').trim(),category=values.get('category'),capacity=Number(values.get('capacity')),when=new Date(values.get('when'));
+ const draft={id:crypto.randomUUID(),title,description,place,category,capacity,when:Number.isFinite(when.getTime())?when.toISOString():'',baseCount:1,mine:true,joined:false};
+ if(!validMeet(draft)||!description||when.getTime()<=Date.now()){document.querySelector('#match-error').textContent='Барлық өрісті толтырып, болашақ уақыт пен 2–100 адам санын таңдаңыз.';return;}
+ if(state.matches.length>=100){document.querySelector('#match-error').textContent='Демо режимде ең көбі 100 жиын сақталады.';return;}
+ matchBusy=true;document.querySelector('#match-publish').disabled=true;matchForm.hidden=true;document.querySelector('#match-scan').hidden=false;
+ const steps=document.querySelector('#match-steps');steps.replaceChildren();document.querySelector('#match-progress').style.width='5%';
+ const labels=['✔ Қауіпсіздік пен қоғамдық тәртіпке тексеру: Сәтті','✔ Орын мен уақыттың сәйкестігі: Мақұлданды','✔ Жастар аудиториясына сәйкестік индексі: 98%'];
+ labels.forEach((label,i)=>matchTimers.push(setTimeout(()=>{const p=document.createElement('p');p.textContent=label;steps.append(p);document.querySelector('#match-progress').style.width=((i+1)*33.34)+'%';},(i+1)*800)));
+ matchTimers.push(setTimeout(()=>{
+  if(!matchBusy||!matchDialog.open)return;
+  state.matches.unshift(draft);state.points+=15;save();render();renderMatches();cancelMatch();matchDialog.close();notify('Ұсыныс мақұлданды! +15 XP');
+ },2900));
+});
+renderMatches();
+
+window.addEventListener('pagehide',cancelMatch);
+// Safety map is illustrative only. No verified lighting/crime/camera dataset is available.
+state.safeMode=state.safeMode===true;
+let safetyLayers=null,safetyPending=null,sosRequest=0;
+const safeWarning=document.querySelector('#safe-warning');
+function isArqalykNight(date=new Date()) {const hour=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Qyzylorda',hour:'2-digit',hourCycle:'h23'}).format(date));return hour>=20||hour<8;}
+function pointInSafetyPolygon(lat,lng,polygon){let inside=false;for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){const [yi,xi]=polygon[i],[yj,xj]=polygon[j];if((yi>lat)!==(yj>lat)&&lng<(xj-xi)*(lat-yi)/(yj-yi)+xi)inside=!inside;}return inside;}
+const safetyDemoZone=[[50.256,66.917],[50.256,66.921],[50.258,66.921],[50.258,66.917]];
+function safetyGate(id,resume){
+ if(!state.safeMode&&!isArqalykNight())return true;
+ const demo=id==='safety-demo';
+ // Only the synthetic demonstration quest is classified using the synthetic zone.
+ const blocked=demo&&pointInSafetyPolygon(50.257,66.919,safetyDemoZone);
+ safetyPending=blocked?null:resume;
+ document.querySelector('#safe-warning-text').textContent=blocked
+ ?'ДЕМО СЦЕНАРИЙ: Бұл аймақта түнгі уақытта жарықтандыру жеткіліксіз деп белгіленген. Түнгі уақытта бұл демо-квест бұғатталады. Тапсырманы таңғы 08:00-ден кейін орындау немесе баламалы бағытты таңдау ұсынылады. Бұл нақты орынға берілген қауіп бағасы емес.'
+ :'Бұл квест орнының жарығы, камералары және қазіргі қауіпсіздігі туралы расталған дерек жоқ. TorgAI оны қауіпсіз деп бағалай алмайды. Квестті күндіз орындауды қарастырыңыз. Картадағы жасыл сызық тек демо үлгі.';
+ document.querySelector('#safe-continue').hidden=blocked;
+ if(!safeWarning.open)safeWarning.showModal();return false;
+}
+safeWarning.addEventListener('close',()=>{safetyPending=null;});
+document.querySelector('#safe-continue').onclick=()=>{const resume=safetyPending;safetyPending=null;safeWarning.close();if(resume)setTimeout(resume,0);};
+document.querySelector('#safe-alternative').onclick=()=>{safeWarning.close();showSafetyPath();};
+function syncSafetyMap(){
+ document.querySelector('#dashboard-safety-label').hidden=!state.safeMode;document.querySelector('#safe-toggle').setAttribute('aria-checked',String(state.safeMode));document.querySelector('#real-map').classList.toggle('night-map',state.safeMode);
+ document.querySelector('#safe-mode-status').textContent=state.safeMode?'Режим қосулы · Демо қауіпсіздік қабаты':isArqalykNight()?'Түнгі уақыт: квест алдындағы тексеру белсенді.':'Режим өшірулі · Түнгі тексеру 20:00-де қосылады.';
+ if(!cityMap||!window.L)return;
+ if(!safetyLayers){
+  safetyLayers=L.layerGroup();
+  const route=[[50.250822,66.906513],[50.250695,66.906513],[50.250695,66.91326],[50.254261,66.91326],[50.254261,66.913599]];
+  L.polyline(route,{color:'#57ffae',weight:7,opacity:.85,dashArray:'10 7'}).bindPopup('Жасыл бағыт үлгісі · ДЕМО. Нақты жол, жарық немесе камера деректеріне негізделмеген. Бұл сызықпен жүрмеңіз.').addTo(safetyLayers);
+  L.polygon(safetyDemoZone,{color:'#f45b69',fillColor:'#f45b69',fillOpacity:.12,dashArray:'5 5'}).bindPopup('Қызыл аймақ · ойдан алынған демо сценарий. Нақты қауіп дерегі емес.').addTo(safetyLayers);
+  const grid=L.divIcon({className:'',html:'<div class="safe-grid"><span class="safe-grid-label">⚠ ДЕМО АЙМАҚ</span></div>',iconSize:[110,74],iconAnchor:[55,37]});
+  L.marker([50.257,66.919],{icon:grid,title:'Ойдан алынған демо аймақ'}).bindPopup('Бұл белгі нақты қауіп туралы ақпарат бермейді.').addTo(safetyLayers);
+ }
+ if(state.safeMode){if(!cityMap.hasLayer(safetyLayers))safetyLayers.addTo(cityMap);}else if(cityMap.hasLayer(safetyLayers))cityMap.removeLayer(safetyLayers);
+}
+document.querySelector('#safe-toggle').onclick=()=>{state.safeMode=!state.safeMode;save();syncSafetyMap();};
+function showSafetyPath(){document.querySelector('#safe-heading').closest('details').open=true;state.safeMode=true;save();switchTab('map');requestAnimationFrame(()=>{initMap();if(cityMap)cityMap.fitBounds([[50.250,66.905],[50.259,66.922]],{padding:[30,50]});document.querySelector('#safe-heading').scrollIntoView({block:'center'});});}
+document.querySelector('#safe-path').onclick=showSafetyPath;
+document.querySelector('#safe-demo').onclick=()=>{state.safeMode=true;save();syncSafetyMap();safetyGate('safety-demo',null);};
+const knownHelpPlaces=[{name:'Жалын жастар орталығы',lat:50.254261,lng:66.913599},{name:'Дала өлкесінің тарихы мұражайы',lat:50.250822,lng:66.906513}];
+function showKnownPlace(coords){
+ const container=document.querySelector('#sos-place');container.replaceChildren();
+ if(!coords)return;
+ const list=knownHelpPlaces.map(p=>({...p,distance:haversineMeters(coords.latitude,coords.longitude,p.lat,p.lng)})).sort((a,b)=>a.distance-b.distance),place=list[0];
+ const title=document.createElement('h3');title.className='font-bold';title.textContent='Белгілі 2 нысанның жақыны: '+place.name;
+ const note=document.createElement('p');note.className='text-xs muted mt-2';note.textContent='Түзу қашықтық: '+(place.distance<1000?Math.round(place.distance)+' м':(place.distance/1000).toFixed(1)+' км')+'. Бұл тек жақындық салыстыруы, қауіпсіз орын таңдауы емес.';
+ const link=document.createElement('a');link.className='action mt-3';link.target='_blank';link.rel='noopener noreferrer';link.textContent='Сыртқы картадан бағыт сұрау ↗';link.href='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(coords.latitude+','+coords.longitude)+'&destination='+encodeURIComponent(place.lat+','+place.lng)+'&travelmode=walking';
+ const disclosure=document.createElement('p');disclosure.className='text-[11px] muted mt-2';disclosure.textContent='Басқанда координаталарыңыз Google Maps-қа беріледі. Бағыттың қауіпсіздігі тексерілмейді.';
+ container.append(title,note,link,disclosure);
+}
+function requestSOSLocation(){
+ const token=++sosRequest,status=document.querySelector('#sos-gps');showKnownPlace(null);status.textContent='Нақты GPS координатасы анықталуда… Қоңырау батырмалары қолжетімді.';
+ const fail=error=>{if(token!==sosRequest||!document.querySelector('#sos-dialog').open)return;status.textContent=({1:'GPS рұқсаты берілмеді.',2:'GPS орны анықталмады.',3:'GPS күту уақыты аяқталды.'}[error?.code]||'GPS қолжетімсіз.')+' Қоңырауда мекенжайыңызды немесе жақын нысанды айтыңыз.';};
+ if(!window.isSecureContext||!navigator.geolocation){fail();return;}
+ try{navigator.geolocation.getCurrentPosition(position=>{
+  if(token!==sosRequest||!document.querySelector('#sos-dialog').open)return;
+  const c=position.coords;
+  if(!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)||Math.abs(c.latitude)>90||Math.abs(c.longitude)>180||!Number.isFinite(position.timestamp)||Date.now()-position.timestamp>60000){fail();return;}
+  status.textContent='GPS: '+c.latitude.toFixed(6)+', '+c.longitude.toFixed(6)+' · Дәлдігі: '+(Number.isFinite(c.accuracy)?'±'+Math.round(c.accuracy)+' м':'белгісіз')+' · '+new Date(position.timestamp).toLocaleTimeString('kk-KZ',{timeZone:'Asia/Qyzylorda'})+(c.accuracy>100?' · Дәлдігі төмен, айналадағы белгілермен салыстырыңыз.':'');showKnownPlace(c);
+ },fail,{enableHighAccuracy:true,timeout:12000,maximumAge:0});}catch(e){fail();}
+}
+function openSOS(){if(!document.querySelector('#sos-dialog').open)document.querySelector('#sos-dialog').showModal();requestSOSLocation();}
+document.querySelector('#safe-sos').onclick=openSOS;
+document.addEventListener('click',event=>{if(event.target.closest('[data-sos-open]'))openSOS();});
+document.querySelector('#sos-refresh').onclick=requestSOSLocation;
+document.querySelector('#sos-dialog').addEventListener('close',()=>{sosRequest++;document.querySelector('#sos-gps').textContent='';showKnownPlace(null);});
+syncSafetyMap();
+
+function updateDashboardAccount(){document.querySelector('#header-name').textContent=state.name;const level=Math.floor(state.points/500)+1;document.querySelector('#header-level').textContent=level+'-деңгей';document.querySelector('#level').textContent=level+'-деңгей · '+(level===1?'Жаңа қадам':'Қала белсендісі');}
+document.querySelector('#dashboard-profile').onclick=()=>switchTab('profile');
+function selectAssistant(mode){document.querySelectorAll('[data-assist]').forEach(b=>{const on=b.dataset.assist===mode;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1;b.classList.toggle('active',on);document.querySelector('#assist-'+b.dataset.assist).hidden=!on;});}
+document.querySelectorAll('[data-assist]').forEach(b=>b.onclick=()=>selectAssistant(b.dataset.assist));
+document.querySelector('.assistant-tabs').onkeydown=e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const mode=e.key==='Home'?'report':e.key==='End'?'guide':document.activeElement.dataset.assist==='report'?'guide':'report';selectAssistant(mode);document.querySelector('#assist-tab-'+mode).focus();};
+selectAssistant('report');
+const newReport=document.createElement('button');newReport.className='pill mt-4';newReport.textContent='＋ Жаңа өтініш';newReport.onclick=()=>{if(!reportBusy)document.querySelector('#report-open').click();};document.querySelector('#assist-report').append(newReport);
+let dashboardMapFilter='all';
+function applyMapFilter(){
+ if(!cityMap)return;
+ for(const [id,marker] of Object.entries(cityQuestMarkers)){const visible=dashboardMapFilter==='all'||dashboardMapFilter==='places'||(dashboardMapFilter==='events'&&events.some(e=>e.locationId===id));if(visible&&!cityMap.hasLayer(marker))marker.addTo(cityMap);if(!visible&&cityMap.hasLayer(marker))cityMap.removeLayer(marker);}
+ if(cleanupMarker){const visible=dashboardMapFilter!=='places';if(visible&&!cityMap.hasLayer(cleanupMarker))cleanupMarker.addTo(cityMap);if(!visible&&cityMap.hasLayer(cleanupMarker))cityMap.removeLayer(cleanupMarker);}
+ if(tourMarker){const visible=dashboardMapFilter==='all'||dashboardMapFilter==='places';if(visible&&!cityMap.hasLayer(tourMarker))tourMarker.addTo(cityMap);if(!visible&&cityMap.hasLayer(tourMarker))cityMap.removeLayer(tourMarker);}
+}
+function selectMapFilter(id){dashboardMapFilter=id;document.querySelectorAll('[data-map-filter]').forEach(b=>{b.classList.toggle('active',b.dataset.mapFilter===id);b.setAttribute('aria-pressed',String(b.dataset.mapFilter===id));});applyMapFilter();}
+document.querySelector('#map-filters').onclick=e=>{const b=e.target.closest('[data-map-filter]');if(b){cityMap?.closePopup();selectMapFilter(b.dataset.mapFilter);}};
+
+// Rule-based local insights; no citywide analytics or remote neural model.
+const insightsWidget=document.createElement('section');insightsWidget.className='insights-widget';insightsWidget.setAttribute('aria-labelledby','insights-title');
+insightsWidget.innerHTML='<div class="insights-eyebrow">SMART INSIGHTS <span>✦ LIVE</span></div><h2 id="insights-title">🤖 TorgAI Аналитик: Сіздің әрекеттеріңіз бен қала кеңестері</h2><p class="insights-note">Демо аналитика · осы браузердегі әрекеттерге негізделген.</p><div id="insights-card" class="insights-card" aria-busy="false"><p id="insights-category"></p><p id="insights-text"></p><p id="insights-basis"></p></div><p id="insights-loading" role="status" hidden><span class="insights-dot"></span> Нейрожелі деректерді талдауда… <small>(имитация)</small></p><div class="insights-controls"><span id="insights-position">1 / 3</span><button id="insights-pause" type="button" aria-pressed="false">⏸ Авто</button><button id="insights-next" type="button">Келесі кеңес →</button></div>';
+document.querySelector('#profile > h1').after(insightsWidget);
+let insightIndex=0,insightTimer=null,insightTransition=null,insightPaused=false;
+function getInsightCards(){
+ const completed=state.done.length,robots=state.robotCaptures.length;
+ const cleanup=events.find(e=>e.id==='taza');
+ const upcoming=cleanup&&Date.parse(cleanup.iso)>Date.now();
+ const personal=!completed?'Алғашқы қадамыңыздан бастаңыз: «Қалалық квесттер» бөлімінен тапсырма таңдап, орынға келгенде GPS арқылы растаңыз.':
+  upcoming&&!state.joined.includes('taza')?'Сіз '+completed+' квест орындадыңыз. «Таза Қазақстан» акциясына тіркеліп, қаланың тазалығына үлес қоса аласыз.':
+  robots===0?'Сіз '+completed+' квест орындадыңыз. Енді AR роботын ұстап, коллекцияңызды бастаңыз — бір квест үшін +50 XP беріледі.':
+  'Сіз '+completed+' квест орындап, '+robots+' робот жинадыңыз. Қазір '+state.points+' XP бар. '+(state.secretStep<3?'Картадағы «Қаланың құпия коды» демосын ашып көріңіз.':'«Арқалық зерттеушісі» белгісі ашылған! Match-та ортақ қызығушылықтағы жиынды таңдаңыз.');
+ const mine=(state.matches||[]).filter(m=>m.mine&&Date.parse(m.when)>Date.now());
+ const late=mine.some(m=>isArqalykNight(new Date(m.when)));
+ const safety=late?'Сіз құрған жиындардың арасында кешкі не түнгі уақытқа белгіленгені бар. Орынның ашықтығы мен жарығын алдын ала нақтылап, күндізгі уақытты қарастырыңыз.':
+  isArqalykNight()?'Арқалықта қазір түнгі уақыт. Квестті күндіз орындауды қарастырыңыз. Жарықтандыруы белгісіз жерге бармаңыз; қажет болса SOS батырмасын пайдаланыңыз.':
+  state.safeMode?'Қауіпсіз бағыт режимі қосулы. Картадағы жасыл сызық пен қызыл аймақ — демо үлгілер; олар нақты қауіпсіздікті растамайды.':
+  'Жиынға барар алдында орын мен уақытты нақтылаңыз. Кешкі уақытта жарықтандыруы белгісіз аумаққа жиын жоспарламаңыз.';
+ const active=(state.matches||[]).filter(m=>Date.parse(m.when)>Date.now());
+ const own=active.filter(m=>m.mine||m.joined),sample=own.length?own:active;
+ const counts={};sample.forEach(m=>{counts[m.category]=(counts[m.category]||0)+1;});
+ const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ const leaders=sorted.length?sorted.filter(([,count])=>count===sorted[0][1]).map(([name])=>name):[];
+ const trend=sample.length?(own.length?'Сіздің белсенді Match әрекеттеріңіз: ':'Жергілікті демо лентада ')+sample.length+' жиын. '+(leaders.length>1?'Бірнеше санат тең: '+leaders.join(', ')+'.':'Ең жиі санат — «'+leaders[0]+'» ('+sorted[0][1]+' жиын).'):'Белсенді жиын әзірше жоқ. TorgAI Match-та жаңа ұсыныс құрып, алғашқы қатысушыларды шақыру идеясын дайындаңыз.';
+ return [
+ {category:'💡 Жеке кеңес',text:personal,basis:'Барлық уақыт: '+completed+' квест · '+state.points+' XP · '+state.joined.length+' тіркелу',tone:'personal'},
+ {category:'⚠️ Қауіпсіздік ескертпесі',text:safety,basis:'Арқалық уақыты · түнгі аралық 20:00–08:00 · расталған қауіп картасы қосылмаған',tone:'safety'},
+ {category:'📊 Қалалық тренд',text:trend,basis:own.length?'Тек осы браузердегі сіздің жиындарыңыз бен қатысу белгілеріңіз.':'Демо үлгі. Бұл Арқалық тұрғындарының нақты статистикасы емес.',tone:'trend'}
+ ];
+}
+function renderInsight(){const item=getInsightCards()[insightIndex];document.querySelector('#insights-category').textContent=item.category;document.querySelector('#insights-text').textContent=item.text;document.querySelector('#insights-basis').textContent=item.basis;document.querySelector('#insights-card').dataset.tone=item.tone;document.querySelector('#insights-position').textContent=(insightIndex+1)+' / 3';}
+function stopInsightTransition(){clearTimeout(insightTransition);insightTransition=null;document.querySelector('#insights-loading').hidden=true;document.querySelector('#insights-card').setAttribute('aria-busy','false');document.querySelector('#insights-next').disabled=false;}
+function refreshInsight(advance=false){
+ stopInsightTransition();if(advance)insightIndex=(insightIndex+1)%3;
+ if(!profileDialog.open||document.hidden){renderInsight();return;}
+ document.querySelector('#insights-loading').hidden=false;document.querySelector('#insights-card').setAttribute('aria-busy','true');document.querySelector('#insights-next').disabled=true;
+ insightTransition=setTimeout(()=>{renderInsight();stopInsightTransition();},window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:550);
+}
+function scheduleInsights(){clearInterval(insightTimer);insightTimer=null;if(!profileDialog.open||document.hidden){stopInsightTransition();return;}renderInsight();if(!insightPaused)insightTimer=setInterval(()=>{if(!insightsWidget.contains(document.activeElement))refreshInsight(true);},5000);}
+document.querySelector('#insights-next').onclick=()=>refreshInsight(true);
+document.querySelector('#insights-pause').onclick=()=>{insightPaused=!insightPaused;document.querySelector('#insights-pause').setAttribute('aria-pressed',String(insightPaused));document.querySelector('#insights-pause').textContent=insightPaused?'▶ Авто':'⏸ Авто';scheduleInsights();};
+new MutationObserver(scheduleInsights).observe(profileDialog,{attributes:true,attributeFilter:['open']});
+document.addEventListener('visibilitychange',scheduleInsights);
+window.addEventListener('pagehide',()=>{clearInterval(insightTimer);stopInsightTransition();});
+window.addEventListener('pageshow',scheduleInsights);
+window.addEventListener('torgai-state-changed',()=>refreshInsight());
+renderInsight();
+
+window.addEventListener('hashchange' ,()=>switchTab(location.hash.slice(1)));render();switchTab(location.hash.slice(1));
+if(!state.registered){document.querySelector('#welcome-name').value=state.name==='Қала зерттеушісі'?'':state.name;welcomeDialog.showModal();}
+</script>
+</body>
+</html>
+
+
+
